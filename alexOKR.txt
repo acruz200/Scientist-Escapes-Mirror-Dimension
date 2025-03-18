@@ -1,0 +1,9 @@
+Schedule and Deliverables:
+
+-Set up a basic Unity scene with player movement (walk/run) -- Fri by 5pm (estimate: 3 hrs)
+-Implement object interaction for artifact pickup -- Sat by 3pm (estimate: 3 hrs)
+-Create a simple level layout (corridors, rooms, start location) -- Sun by 12pm (estimate: 4 hrs)
+-Implement placeholder UI for health bar and basic interaction prompts -- Sun by 6pm (estimate: 3 hrs)
+-Add a basic enemy that moves and detects player presence -- Mon by 2pm (estimate: 4 hrs)
+-Test and debug basic mechanics (movement, interactions, simple enemy behavior) -- Mon by 11pm (estimate: 3 hrs)
+
