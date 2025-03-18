@@ -1,0 +1,10 @@
+Schedule and Deliverables:
+
+Set up basic Unity scene with terrain and lighting -- Fri by 5pm (estimate: 3 hrs)
+Implement basic camera follow system for the player character -- Fri by 9pm (estimate: 2 hrs)
+Create simple NPC character model and basic animations (idle, walk) -- Sat by 12pm (estimate: 4 hrs)
+Implement simple puzzle interaction system (e.g., pressing switches) -- Sat by 6pm (estimate: 3 hrs)
+Design and implement a collectible system (objects that can be picked up and added to inventory) -- Sun by 12pm (estimate: 3 hrs)
+Create basic enemy AI with and detection behavior -- Sun by 5pm (estimate: 4 hrs)
+Develop simple boss fight mechanics (damage, health reduction) -- Mon by 12pm (estimate: 4 hrs)
+Test basic combat -- Mon by 6pm (estimate: 3 hrs)
