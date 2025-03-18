@@ -1,0 +1,7 @@
+Schedule and Deliverables:
+
+-Implement gun mechanic for backward movement when shooting -- Wed by 6pm (estimate: 4 hrs)
+-Create size distortion shader for objects (making small things big, big things small) -- Fri by 6pm (estimate: 5 hrs)
+-Design and implement jump mechanics with gun recoil boost -- Sat by 5pm (estimate: 3 hrs)
+-Add particle effects for gun interactions -- Sun by 3pm (estimate: 2 hrs)
+-Test and debug movement mechanics (shooting, jumping, recoil physics) -- Sun by 8pm (estimate: 2 hrs) 
