@@ -12,6 +12,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI dialogueText;
     
+    [Header("Health Bar")]
+    [SerializeField] private GameObject healthBarPanel;
+    [SerializeField] private Image healthBarFill;
+    [SerializeField] private TextMeshProUGUI healthText;
+    
     private void Awake()
     {
         // Create UI components if they don't exist
@@ -105,9 +110,76 @@ public class UIManager : MonoBehaviour
             dialogueTextRect.offsetMax = new Vector2(-20, -10);
         }
         
+        // Create health bar panel if it doesn't exist
+        if (healthBarPanel == null)
+        {
+            // Create health bar panel
+            healthBarPanel = new GameObject("Health Bar Panel");
+            healthBarPanel.transform.SetParent(mainCanvas.transform, false);
+            
+            // Add components
+            Image healthPanelImage = healthBarPanel.AddComponent<Image>();
+            healthPanelImage.color = new Color(0, 0, 0, 0.5f);
+            
+            // Set panel position and size
+            RectTransform healthPanelRect = healthBarPanel.GetComponent<RectTransform>();
+            healthPanelRect.anchorMin = new Vector2(0, 1);
+            healthPanelRect.anchorMax = new Vector2(0, 1);
+            healthPanelRect.pivot = new Vector2(0, 1);
+            healthPanelRect.anchoredPosition = new Vector2(10, -10);
+            healthPanelRect.sizeDelta = new Vector2(300, 40);
+            
+            // Create health bar background
+            GameObject healthBarBgObj = new GameObject("Health Bar Background");
+            healthBarBgObj.transform.SetParent(healthBarPanel.transform, false);
+            
+            Image healthBarBg = healthBarBgObj.AddComponent<Image>();
+            healthBarBg.color = Color.gray;
+            
+            RectTransform healthBarBgRect = healthBarBgObj.GetComponent<RectTransform>();
+            healthBarBgRect.anchorMin = new Vector2(0, 0.5f);
+            healthBarBgRect.anchorMax = new Vector2(1, 0.5f);
+            healthBarBgRect.pivot = new Vector2(0.5f, 0.5f);
+            healthBarBgRect.anchoredPosition = new Vector2(0, 0);
+            healthBarBgRect.sizeDelta = new Vector2(-20, 20);
+            
+            // Create health bar fill
+            GameObject healthBarFillObj = new GameObject("Health Bar Fill");
+            healthBarFillObj.transform.SetParent(healthBarBgObj.transform, false);
+            
+            healthBarFill = healthBarFillObj.AddComponent<Image>();
+            healthBarFill.color = Color.green;
+            
+            RectTransform healthBarFillRect = healthBarFillObj.GetComponent<RectTransform>();
+            healthBarFillRect.anchorMin = Vector2.zero;
+            healthBarFillRect.anchorMax = Vector2.one;
+            healthBarFillRect.pivot = new Vector2(0, 0.5f);
+            healthBarFillRect.anchoredPosition = Vector2.zero;
+            healthBarFillRect.sizeDelta = Vector2.zero;
+            
+            // Create health text
+            GameObject healthTextObj = new GameObject("Health Text");
+            healthTextObj.transform.SetParent(healthBarPanel.transform, false);
+            
+            healthText = healthTextObj.AddComponent<TextMeshProUGUI>();
+            healthText.alignment = TextAlignmentOptions.Center;
+            healthText.fontSize = 18;
+            healthText.color = Color.white;
+            healthText.text = "100/100";
+            
+            RectTransform healthTextRect = healthTextObj.GetComponent<RectTransform>();
+            healthTextRect.anchorMin = Vector2.zero;
+            healthTextRect.anchorMax = Vector2.one;
+            healthTextRect.sizeDelta = Vector2.zero;
+        }
+        
         // Hide UI elements initially
         HideInteractionPrompt();
         HideDialogue();
+        
+        // Show health bar
+        healthBarPanel.SetActive(true);
+        UpdateHealthBar(1.0f);
     }
     
     public void ShowInteractionPrompt(string promptMessage)
@@ -130,5 +202,31 @@ public class UIManager : MonoBehaviour
     public void HideDialogue()
     {
         dialoguePanel.SetActive(false);
+    }
+    
+    public void UpdateHealthBar(float healthPercent)
+    {
+        healthPercent = Mathf.Clamp01(healthPercent);
+        
+        if (healthBarFill != null)
+        {
+            // Update fill amount
+            healthBarFill.fillAmount = healthPercent;
+            
+            // Change color based on health percentage
+            if (healthPercent > 0.6f)
+                healthBarFill.color = Color.green;
+            else if (healthPercent > 0.3f)
+                healthBarFill.color = Color.yellow;
+            else
+                healthBarFill.color = Color.red;
+            
+            // Update health text
+            if (healthText != null)
+            {
+                int currentHealth = Mathf.RoundToInt(healthPercent * 100);
+                healthText.text = currentHealth + "/100";
+            }
+        }
     }
 } 
