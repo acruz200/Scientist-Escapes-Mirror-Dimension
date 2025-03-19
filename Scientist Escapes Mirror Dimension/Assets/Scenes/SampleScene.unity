@@ -697,6 +697,20 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7320967035887300696, guid: 69b0b468f8d3f45e8993b9929ef1f094, type: 3}
   m_PrefabInstance: {fileID: 3605876911873619606}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &888224370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888224358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 763667fb8de40485ca4ed767d344c808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
 --- !u!1 &1050796180
 GameObject:
   m_ObjectHideFlags: 0
@@ -1342,6 +1356,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2614652506463755303, guid: 69b0b468f8d3f45e8993b9929ef1f094, type: 3}
       insertIndex: -1
       addedObject: {fileID: 888224359}
+    - targetCorrespondingSourceObject: {fileID: 2614652506463755303, guid: 69b0b468f8d3f45e8993b9929ef1f094, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 888224370}
   m_SourcePrefab: {fileID: 100100000, guid: 69b0b468f8d3f45e8993b9929ef1f094, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
