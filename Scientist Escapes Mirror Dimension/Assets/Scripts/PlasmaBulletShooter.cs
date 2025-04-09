@@ -19,9 +19,14 @@ public class PlasmaBulletShooter : MonoBehaviour
     public bool showMuzzleFlash = true;
     public float muzzleFlashDuration = 0.05f;
     
+    [Header("Recoil")]
+    public float recoilForce = 2.0f; // Increased recoil force for more noticeable effect
+    public float recoilUpwardForce = 0.5f; // Added upward component to recoil
+    
     // Reference to the player
     private GameObject playerObject;
     private Rigidbody playerRigidbody;
+    private PlayerMovement playerMovement;
 
     void Start()
     {
@@ -42,22 +47,31 @@ public class PlasmaBulletShooter : MonoBehaviour
             }
         }
         
-        // Ensure bullet spawn point exists
+        // Ensure bullet spawn point exists and is properly positioned
         if (bulletSpawnPoint == null)
         {
-            bulletSpawnPoint = transform;
+            // Create a new bullet spawn point as a child of this object
+            GameObject spawnPointObj = new GameObject("BulletSpawnPoint");
+            spawnPointObj.transform.parent = transform;
+            
+            // Position it at the front of the gun (assuming the gun is oriented with forward along the z-axis)
+            // You may need to adjust these values based on your gun model
+            spawnPointObj.transform.localPosition = new Vector3(0, 0, 0.5f);
+            
+            // Set the bullet spawn point reference
+            bulletSpawnPoint = spawnPointObj.transform;
         }
         
         // Get player rigidbody for future reference
         if (playerObject != null)
         {
             playerRigidbody = playerObject.GetComponent<Rigidbody>();
+            playerMovement = playerObject.GetComponent<PlayerMovement>();
             
             // Ensure the player has the Player tag for bullet detection
             if (!playerObject.CompareTag("Player"))
             {
                 playerObject.tag = "Player";
-                Debug.Log("Set player tag to 'Player' for proper bullet detection");
             }
         }
     }
@@ -65,15 +79,23 @@ public class PlasmaBulletShooter : MonoBehaviour
     void Update()
     {
         // Check for right mouse button click with cooldown
-        if (Input.GetMouseButtonDown(1) && Time.time > lastShotTime + shootCooldown)
+        if (Input.GetMouseButtonDown(1))
         {
-            ShootPlasmaBullet();
-            lastShotTime = Time.time;
+            if (Time.time > lastShotTime + shootCooldown)
+            {
+                ShootPlasmaBullet();
+                lastShotTime = Time.time;
+            }
         }
     }
 
     void ShootPlasmaBullet()
     {
+        if (bulletPrefab == null)
+        {
+            return;
+        }
+        
         // Show muzzle flash effect
         if (showMuzzleFlash)
         {
@@ -137,10 +159,21 @@ public class PlasmaBulletShooter : MonoBehaviour
         PlasmaBulletBehavior bulletBehavior = bullet.AddComponent<PlasmaBulletBehavior>();
         bulletBehavior.lifetime = bulletLifetime;
         
-        // Apply a small recoil force to the player when shooting
+        // Apply a very small recoil force to the player when shooting
         if (playerRigidbody != null)
         {
-            playerRigidbody.AddForce(-bulletSpawnPoint.forward * 10f, ForceMode.Impulse);
+            // Apply a force in the opposite direction of shooting with an upward component
+            Vector3 recoilDirection = -bulletSpawnPoint.forward + Vector3.up * recoilUpwardForce;
+            playerRigidbody.AddForce(recoilDirection * recoilForce, ForceMode.Impulse);
+            
+            // Add a small random rotation for more realistic recoil
+            playerRigidbody.AddTorque(Random.insideUnitSphere * 0.1f, ForceMode.Impulse);
+            
+            // Notify the player movement script that we've shot
+            if (playerMovement != null)
+            {
+                playerMovement.OnShoot();
+            }
         }
     }
     
