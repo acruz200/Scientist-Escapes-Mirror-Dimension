@@ -42,10 +42,19 @@ public class PlasmaBulletShooter : MonoBehaviour
             }
         }
         
-        // Ensure bullet spawn point exists
+        // Ensure bullet spawn point exists and is properly positioned
         if (bulletSpawnPoint == null)
         {
-            bulletSpawnPoint = transform;
+            // Create a new bullet spawn point as a child of this object
+            GameObject spawnPointObj = new GameObject("BulletSpawnPoint");
+            spawnPointObj.transform.parent = transform;
+            
+            // Position it at the front of the gun (assuming the gun is oriented with forward along the z-axis)
+            // You may need to adjust these values based on your gun model
+            spawnPointObj.transform.localPosition = new Vector3(0, 0, 0.5f);
+            
+            // Set the bullet spawn point reference
+            bulletSpawnPoint = spawnPointObj.transform;
         }
         
         // Get player rigidbody for future reference
@@ -57,7 +66,6 @@ public class PlasmaBulletShooter : MonoBehaviour
             if (!playerObject.CompareTag("Player"))
             {
                 playerObject.tag = "Player";
-                Debug.Log("Set player tag to 'Player' for proper bullet detection");
             }
         }
     }
@@ -65,15 +73,23 @@ public class PlasmaBulletShooter : MonoBehaviour
     void Update()
     {
         // Check for right mouse button click with cooldown
-        if (Input.GetMouseButtonDown(1) && Time.time > lastShotTime + shootCooldown)
+        if (Input.GetMouseButtonDown(1))
         {
-            ShootPlasmaBullet();
-            lastShotTime = Time.time;
+            if (Time.time > lastShotTime + shootCooldown)
+            {
+                ShootPlasmaBullet();
+                lastShotTime = Time.time;
+            }
         }
     }
 
     void ShootPlasmaBullet()
     {
+        if (bulletPrefab == null)
+        {
+            return;
+        }
+        
         // Show muzzle flash effect
         if (showMuzzleFlash)
         {
@@ -99,7 +115,7 @@ public class PlasmaBulletShooter : MonoBehaviour
         // Set bullet properties
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        rb.linearVelocity = bulletSpawnPoint.forward * bulletSpeed;
+        rb.velocity = bulletSpawnPoint.forward * bulletSpeed;
         
         // Set bullet color
         Renderer renderer = bullet.GetComponent<Renderer>();
@@ -136,12 +152,6 @@ public class PlasmaBulletShooter : MonoBehaviour
         // Add the bullet behavior script
         PlasmaBulletBehavior bulletBehavior = bullet.AddComponent<PlasmaBulletBehavior>();
         bulletBehavior.lifetime = bulletLifetime;
-        
-        // Apply a small recoil force to the player when shooting
-        if (playerRigidbody != null)
-        {
-            playerRigidbody.AddForce(-bulletSpawnPoint.forward * 10f, ForceMode.Impulse);
-        }
     }
     
     IEnumerator ShowMuzzleFlash()
