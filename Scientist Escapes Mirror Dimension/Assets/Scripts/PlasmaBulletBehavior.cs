@@ -9,8 +9,9 @@ public class PlasmaBulletBehavior : MonoBehaviour
     public float damage = 10f;
     
     [Header("Player Movement")]
-    public float playerPropulsionForce = 500f;
+    public float playerPropulsionForce = 2f;
     public float groundDetectionRange = 2f;
+    public float maxPlayerVelocity = 20f;
     
     private float timer = 0f;
     private GameObject player;
@@ -128,6 +129,12 @@ public class PlasmaBulletBehavior : MonoBehaviour
                 
                 // Apply the force to the player
                 playerRb.AddForce(forceDirection * playerPropulsionForce, ForceMode.Impulse);
+                
+                // Limit the player's velocity to prevent flying too far
+                if (playerRb.linearVelocity.magnitude > maxPlayerVelocity)
+                {
+                    playerRb.linearVelocity = playerRb.linearVelocity.normalized * maxPlayerVelocity;
+                }
                 
                 // Add some visual feedback
                 CreatePropulsionEffect(player.transform.position);

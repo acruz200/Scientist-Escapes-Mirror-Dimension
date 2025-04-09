@@ -20,11 +20,13 @@ public class PlasmaBulletShooter : MonoBehaviour
     public float muzzleFlashDuration = 0.05f;
     
     [Header("Recoil")]
-    public float recoilForce = 0.05f; // Very small constant recoil force
+    public float recoilForce = 2.0f; // Increased recoil force for more noticeable effect
+    public float recoilUpwardForce = 0.5f; // Added upward component to recoil
     
     // Reference to the player
     private GameObject playerObject;
     private Rigidbody playerRigidbody;
+    private PlayerMovement playerMovement;
 
     void Start()
     {
@@ -64,6 +66,7 @@ public class PlasmaBulletShooter : MonoBehaviour
         if (playerObject != null)
         {
             playerRigidbody = playerObject.GetComponent<Rigidbody>();
+            playerMovement = playerObject.GetComponent<PlayerMovement>();
             
             // Ensure the player has the Player tag for bullet detection
             if (!playerObject.CompareTag("Player"))
@@ -159,8 +162,18 @@ public class PlasmaBulletShooter : MonoBehaviour
         // Apply a very small recoil force to the player when shooting
         if (playerRigidbody != null)
         {
-            // Apply a small force in the opposite direction of shooting
-            playerRigidbody.AddForce(-bulletSpawnPoint.forward * recoilForce, ForceMode.Impulse);
+            // Apply a force in the opposite direction of shooting with an upward component
+            Vector3 recoilDirection = -bulletSpawnPoint.forward + Vector3.up * recoilUpwardForce;
+            playerRigidbody.AddForce(recoilDirection * recoilForce, ForceMode.Impulse);
+            
+            // Add a small random rotation for more realistic recoil
+            playerRigidbody.AddTorque(Random.insideUnitSphere * 0.1f, ForceMode.Impulse);
+            
+            // Notify the player movement script that we've shot
+            if (playerMovement != null)
+            {
+                playerMovement.OnShoot();
+            }
         }
     }
     

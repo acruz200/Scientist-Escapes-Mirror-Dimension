@@ -6,6 +6,7 @@ TagManager:
   tags:
   - TestInteract
   - StreetLamp
+  - Bullet
   layers:
   - Default
   - TransparentFX
