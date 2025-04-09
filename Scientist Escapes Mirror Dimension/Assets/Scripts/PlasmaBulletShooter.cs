@@ -19,6 +19,9 @@ public class PlasmaBulletShooter : MonoBehaviour
     public bool showMuzzleFlash = true;
     public float muzzleFlashDuration = 0.05f;
     
+    [Header("Recoil")]
+    public float recoilForce = 0.05f; // Very small constant recoil force
+    
     // Reference to the player
     private GameObject playerObject;
     private Rigidbody playerRigidbody;
@@ -152,6 +155,13 @@ public class PlasmaBulletShooter : MonoBehaviour
         // Add the bullet behavior script
         PlasmaBulletBehavior bulletBehavior = bullet.AddComponent<PlasmaBulletBehavior>();
         bulletBehavior.lifetime = bulletLifetime;
+        
+        // Apply a very small recoil force to the player when shooting
+        if (playerRigidbody != null)
+        {
+            // Apply a small force in the opposite direction of shooting
+            playerRigidbody.AddForce(-bulletSpawnPoint.forward * recoilForce, ForceMode.Impulse);
+        }
     }
     
     IEnumerator ShowMuzzleFlash()
