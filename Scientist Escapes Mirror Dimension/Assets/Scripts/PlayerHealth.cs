@@ -1,83 +1,127 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Health Settings")]
-    [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private float currentHealth;
+    public float maxHealth = 100f;
+    public float currentHealth;
+    public float invincibilityTime = 1f;
     
-    private UIManager uiManager;
+    [Header("UI")]
+    public Slider healthBar;
+    public Image damageFlashImage;
+    public float flashDuration = 0.2f;
+    
+    private bool isInvincible = false;
+    private float invincibilityTimer = 0f;
     
     void Start()
     {
         // Initialize health
         currentHealth = maxHealth;
         
-        // Get UI Manager reference
-        uiManager = FindObjectOfType<UIManager>();
-        
-        if (uiManager == null)
-        {
-            GameObject uiManagerObj = new GameObject("UIManager");
-            uiManager = uiManagerObj.AddComponent<UIManager>();
-        }
-        
-        // Update health bar
-        UpdateHealthBar();
+        // Update UI
+        UpdateHealthUI();
     }
     
-    public void TakeDamage(float damageAmount)
+    void Update()
     {
-        currentHealth -= damageAmount;
+        // Handle invincibility timer
+        if (isInvincible)
+        {
+            invincibilityTimer += Time.deltaTime;
+            if (invincibilityTimer >= invincibilityTime)
+            {
+                isInvincible = false;
+                invincibilityTimer = 0f;
+            }
+        }
+    }
+    
+    public void TakeDamage(float damage)
+    {
+        // Don't take damage if invincible
+        if (isInvincible) return;
+        
+        // Apply damage
+        currentHealth -= damage;
+        
+        // Clamp health
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         
-        UpdateHealthBar();
+        // Update UI
+        UpdateHealthUI();
         
+        // Show damage flash
+        StartCoroutine(ShowDamageFlash());
+        
+        // Set invincibility
+        isInvincible = true;
+        invincibilityTimer = 0f;
+        
+        // Check if player is dead
         if (currentHealth <= 0f)
         {
             Die();
         }
     }
     
-    public void Heal(float healAmount)
+    public void Heal(float amount)
     {
-        currentHealth += healAmount;
+        // Apply healing
+        currentHealth += amount;
+        
+        // Clamp health
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         
-        UpdateHealthBar();
+        // Update UI
+        UpdateHealthUI();
     }
     
-    private void UpdateHealthBar()
+    void UpdateHealthUI()
     {
-        if (uiManager != null)
+        // Update health bar
+        if (healthBar != null)
         {
-            uiManager.UpdateHealthBar(currentHealth / maxHealth);
+            healthBar.value = currentHealth / maxHealth;
         }
     }
     
-    private void Die()
+    IEnumerator ShowDamageFlash()
     {
-        // Handle player death
+        // Show damage flash
+        if (damageFlashImage != null)
+        {
+            damageFlashImage.enabled = true;
+            damageFlashImage.color = new Color(1f, 0f, 0f, 0.5f);
+            
+            // Fade out
+            float elapsed = 0f;
+            while (elapsed < flashDuration)
+            {
+                float alpha = Mathf.Lerp(0.5f, 0f, elapsed / flashDuration);
+                damageFlashImage.color = new Color(1f, 0f, 0f, alpha);
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            damageFlashImage.enabled = false;
+        }
+    }
+    
+    void Die()
+    {
+        // Implement death behavior
         Debug.Log("Player died!");
         
-        // You can implement respawn logic or game over screen here
-    }
-    
-    // Debug method to test health system
-    void Update()
-    {
-        // Test taking damage (press T key)
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TakeDamage(10f);
-        }
-        
-        // Test healing (press H key)
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            Heal(10f);
-        }
+        // For now, just respawn at starting position
+        // In a real game, you might want to show a game over screen or respawn at a checkpoint
+        transform.position = Vector3.zero;
+        currentHealth = maxHealth;
+        UpdateHealthUI();
     }
 } 
