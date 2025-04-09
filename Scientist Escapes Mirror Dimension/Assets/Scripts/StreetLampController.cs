@@ -5,24 +5,27 @@ using UnityEngine;
 public class StreetLampController : MonoBehaviour
 {
     [Header("Light Settings")]
-    [SerializeField] private float lightIntensity = 1.5f;
-    [SerializeField] private Color lightColor = new Color(1f, 0.95f, 0.8f, 1f);
-    [SerializeField] private float lightRange = 15f;
+    [SerializeField] private float lightIntensity = 3.0f;
+    [SerializeField] private Color lightColor = new Color(1f, 0.85f, 0.4f, 1f);
+    [SerializeField] private float lightRange = 20f;
     [SerializeField] private bool castShadows = true;
     [SerializeField] private bool flicker = false;
     [SerializeField] private float flickerIntensity = 0.2f;
     [SerializeField] private float flickerSpeed = 0.1f;
+    [SerializeField] private float lightHeightOffset = 1.0f; // Height offset for the light
     
     [Header("Visual Settings")]
     [SerializeField] private bool enableGlow = true;
-    [SerializeField] private Color glowColor = new Color(1f, 0.9f, 0.6f, 1f);
-    [SerializeField] private float glowIntensity = 1.0f;
+    [SerializeField] private Color glowColor = new Color(1f, 0.8f, 0.3f, 1f);
+    [SerializeField] private float glowIntensity = 1.5f;
+    [SerializeField] private string lightPartName = "Light"; // Name of the light part of the lamp
     
     private Light lampLight;
     private Material lampMaterial;
     private MeshRenderer lampRenderer;
     private float baseIntensity;
     private float flickerTimer = 0f;
+    private GameObject lightObject; // Reference to the light GameObject
     
     void Start()
     {
@@ -61,11 +64,18 @@ public class StreetLampController : MonoBehaviour
             return;
         }
         
-        // Get or add a light component
-        lampLight = lamp.GetComponent<Light>();
+        // Create a child GameObject for the light
+        lightObject = new GameObject("LampLight");
+        lightObject.transform.SetParent(lamp.transform);
+        
+        // Position the light higher on the lamp
+        lightObject.transform.localPosition = new Vector3(0, lightHeightOffset, 0);
+        
+        // Get or add a light component to the light object
+        lampLight = lightObject.GetComponent<Light>();
         if (lampLight == null)
         {
-            lampLight = lamp.AddComponent<Light>();
+            lampLight = lightObject.AddComponent<Light>();
         }
         
         // Configure the light
@@ -74,6 +84,10 @@ public class StreetLampController : MonoBehaviour
         lampLight.color = lightColor;
         lampLight.range = lightRange;
         lampLight.shadows = castShadows ? LightShadows.Soft : LightShadows.None;
+        
+        // Add a subtle inner radius for more realistic falloff
+        lampLight.innerSpotAngle = 30f;
+        lampLight.spotAngle = 90f;
         
         // Store the base intensity for flickering
         baseIntensity = lightIntensity;
@@ -87,19 +101,55 @@ public class StreetLampController : MonoBehaviour
     
     private void SetupGlow(GameObject lamp)
     {
-        // Get the renderer
-        lampRenderer = lamp.GetComponent<MeshRenderer>();
+        // Try to find the light part of the lamp
+        Transform lightPart = lamp.transform.Find(lightPartName);
         
-        if (lampRenderer != null)
+        if (lightPart != null)
         {
-            // Create a new material with the Unlit/Color shader for better control
-            lampMaterial = new Material(Shader.Find("Unlit/Color"));
+            // Get the renderer of the light part
+            lampRenderer = lightPart.GetComponent<MeshRenderer>();
             
-            // Set the color with intensity
-            lampMaterial.color = glowColor * glowIntensity;
+            if (lampRenderer != null)
+            {
+                // Create a new material with the Unlit/Color shader for better control
+                lampMaterial = new Material(Shader.Find("Unlit/Color"));
+                
+                // Set the color with intensity
+                lampMaterial.color = glowColor * glowIntensity;
+                
+                // Apply the material
+                lampRenderer.material = lampMaterial;
+            }
+        }
+        else
+        {
+            // If we can't find a specific light part, try to find a child with "light" in its name
+            foreach (Transform child in lamp.transform)
+            {
+                if (child.name.ToLower().Contains("light"))
+                {
+                    lampRenderer = child.GetComponent<MeshRenderer>();
+                    
+                    if (lampRenderer != null)
+                    {
+                        // Create a new material with the Unlit/Color shader for better control
+                        lampMaterial = new Material(Shader.Find("Unlit/Color"));
+                        
+                        // Set the color with intensity
+                        lampMaterial.color = glowColor * glowIntensity;
+                        
+                        // Apply the material
+                        lampRenderer.material = lampMaterial;
+                        break;
+                    }
+                }
+            }
             
-            // Apply the material
-            lampRenderer.material = lampMaterial;
+            // If we still couldn't find a light part, log a warning
+            if (lampRenderer == null)
+            {
+                Debug.LogWarning("Could not find a light part for the street lamp: " + lamp.name);
+            }
         }
     }
     
@@ -175,6 +225,16 @@ public class StreetLampController : MonoBehaviour
         {
             // For Unlit/Color shader, we just update the color
             lampMaterial.color = glowColor * glowIntensity;
+        }
+    }
+    
+    public void SetLightHeight(float height)
+    {
+        lightHeightOffset = height;
+        
+        if (lightObject != null)
+        {
+            lightObject.transform.localPosition = new Vector3(0, lightHeightOffset, 0);
         }
     }
 } 
