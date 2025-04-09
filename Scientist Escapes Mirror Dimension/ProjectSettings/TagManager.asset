@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - TestInteract
+  - StreetLamp
   layers:
   - Default
   - TransparentFX
