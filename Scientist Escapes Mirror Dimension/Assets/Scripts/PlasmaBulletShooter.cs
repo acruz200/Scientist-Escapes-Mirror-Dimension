@@ -115,7 +115,7 @@ public class PlasmaBulletShooter : MonoBehaviour
         // Set bullet properties
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        rb.velocity = bulletSpawnPoint.forward * bulletSpeed;
+        rb.linearVelocity = bulletSpawnPoint.forward * bulletSpeed;
         
         // Set bullet color
         Renderer renderer = bullet.GetComponent<Renderer>();
