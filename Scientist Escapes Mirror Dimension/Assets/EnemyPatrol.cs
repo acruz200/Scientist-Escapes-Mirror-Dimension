@@ -15,13 +15,28 @@ public class EnemyPatrol : MonoBehaviour
     private Transform target;
     private NavMeshAgent agent;
 
-    void Start()
+   void Start()
+{
+    currentState = State.Idle;
+    target = pointA; // Start moving towards point A
+    agent = GetComponent<NavMeshAgent>();
+    agent.speed = speed;
+
+    // 🔧 Automatically assign the player if not set in Inspector
+    if (player == null)
     {
-        currentState = State.Idle;
-        target = pointA; // Start moving towards point A
-        agent = GetComponent<NavMeshAgent>();
-        agent.speed = speed;
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ EnemyPatrol could not find a GameObject tagged 'Player'.");
+        }
     }
+}
+
 
     void Update()
     {
