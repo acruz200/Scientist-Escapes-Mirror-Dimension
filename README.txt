@@ -127,3 +127,56 @@ Technical Achievements:
 3. Advanced animation system with state machines
 4. Dynamic lighting and particle effects
 5. Integrated combat and movement systems 
+
+
+UI Changes
+Issue: Health Bar Too Small
+Fix: Enlarged and repositioned the health bar in the top-left corner to improve visibility and readability for the player.
+Issue: No Start Screen
+
+Fix: Added a main menu screen with options to "Start" or "Quit" the game, providing a proper entry point for players.
+Issue: No End Game Screen
+
+Fix: Created an end game screen that appears upon player win or death, giving players clear feedback that the game has concluded.
+Issue: No Name Labels for Key Entities
+
+Fix: Added floating name tags above important characters:
+Player → "Player"
+
+Enemy → "Bob"
+
+Toilet Mob 
+These tags are world-space text objects that always face the camera, making testing and identification easier during gameplay.
+
+Sound Design
+Commercial Reference: Resident Evil 2 Remake
+We analyzed Resident Evil 2 Remake for its immersive use of atmospheric and reactive sounds. Key takeaways:
+
+Footsteps vary by surface type
+Enemy growls signal nearby danger
+Background ambience uses subtle, low-impact sounds
+Sounds are layered and volume-balanced for immersion
+
+Implemented Sounds
+
+Footsteps
+File: lego-walking-208360.mp3
+Where/When: Plays during player movement (PlayerMovement.cs)
+Purpose: Medium-impact sound to provide motion feedback
+Notes: Automatically starts/stops based on input; uses one consistent clip
+
+Monster Growl
+File: monster-growl-251374.mp3
+Where/When: Plays once when enemy begins chasing (EnemyPatrol.cs)
+Purpose: High-impact alert to increase player tension
+Notes: Non-repeating, balanced volume
+
+Door Sound
+File: open-door-sound-247415.mp3
+Where/When: Triggers when interacting with doors (DoorController.cs)
+Purpose: Medium-impact interaction feedback
+
+Light Switch Toggle
+File: switch-150130.mp3
+Where/When: Used when toggling lights on/off (LampController.cs, StreetLampController.cs)
+Purpose: Low-impact, subtle audio cue
