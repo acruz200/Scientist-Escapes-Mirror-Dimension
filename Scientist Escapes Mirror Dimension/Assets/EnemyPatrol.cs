@@ -12,31 +12,43 @@ public class EnemyPatrol : MonoBehaviour
     public float speed = 2f;
     public float chaseRange = 5f; // Distance to start chasing
 
+    public AudioClip chaseClip;
+
     private Transform target;
     private NavMeshAgent agent;
+    private AudioSource audioSource;
+    private bool hasPlayedChaseSound = false;
 
-   void Start()
-{
-    currentState = State.Idle;
-    target = pointA; // Start moving towards point A
-    agent = GetComponent<NavMeshAgent>();
-    agent.speed = speed;
-
-    // 🔧 Automatically assign the player if not set in Inspector
-    if (player == null)
+    void Start()
     {
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ EnemyPatrol could not find a GameObject tagged 'Player'.");
-        }
-    }
-}
+        currentState = State.Idle;
+        target = pointA;
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = speed;
 
+        // Auto-assign player if not set
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ EnemyPatrol could not find a GameObject tagged 'Player'.");
+            }
+        }
+
+        // Set up AudioSource
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.spatialBlend = 1f;
+        audioSource.volume = 1f;
+        audioSource.minDistance = 0.5f;
+        audioSource.maxDistance = 1f;
+        audioSource.loop = false;
+        audioSource.playOnAwake = false;
+    }
 
     void Update()
     {
@@ -50,6 +62,7 @@ public class EnemyPatrol : MonoBehaviour
                 {
                     currentState = State.Chasing;
                     Debug.Log("Switching to Chasing");
+                    PlayChaseSoundOnce();
                 }
                 break;
 
@@ -58,37 +71,44 @@ public class EnemyPatrol : MonoBehaviour
                 if (distanceToPlayer > chaseRange)
                 {
                     currentState = State.Idle;
-                    ResetPatrol(); // Properly reset the patrol when switching back
+                    ResetPatrol();
                     Debug.Log("Switching to Idle");
+                    hasPlayedChaseSound = false; // Allow sound to play again next time
+                    audioSource.Stop();
                 }
                 break;
         }
     }
 
-   void Patrol()
-{
-    // Only set destination if we're not already going to the target
-    if (!agent.pathPending && agent.remainingDistance < 0.1f)
+    void Patrol()
     {
-        // Switch target to the other waypoint
-        target = (target == pointA) ? pointB : pointA;
-        agent.SetDestination(target.position);
-        Debug.Log("Patrol: Switching target");
+        if (!agent.pathPending && agent.remainingDistance < 0.1f)
+        {
+            target = (target == pointA) ? pointB : pointA;
+            agent.SetDestination(target.position);
+            Debug.Log("Patrol: Switching target");
+        }
     }
-}
-
 
     void ChasePlayer()
     {
-        // Move towards the player using NavMeshAgent
         agent.SetDestination(player.position);
     }
 
     void ResetPatrol()
     {
-        // Ensure the patrol resumes from the current target
         target = (Vector3.Distance(transform.position, pointA.position) < Vector3.Distance(transform.position, pointB.position)) ? pointA : pointB;
         agent.SetDestination(target.position);
         Debug.Log("Resetting Patrol");
+    }
+
+    void PlayChaseSoundOnce()
+    {
+        if (chaseClip != null && audioSource != null && !hasPlayedChaseSound)
+        {
+            audioSource.Stop();
+            audioSource.PlayOneShot(chaseClip);
+            hasPlayedChaseSound = true;
+        }
     }
 }

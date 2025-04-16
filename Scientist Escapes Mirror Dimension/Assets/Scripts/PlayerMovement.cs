@@ -11,13 +11,16 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 25.0f;
     public float rotationSpeed = 90;
     public float force = 700f;
-    
+
     // Added cooldown for movement after shooting
     public float movementCooldownAfterShoot = 0.1f;
     private float lastShootTime = 0f;
-    
+
     // Added maximum velocity limit
     public float maxVelocity = 30f;
+
+    // Walking sound
+    public AudioSource footstepAudio;
 
     Rigidbody rb;
     Transform t;
@@ -34,30 +37,42 @@ public class PlayerMovement : MonoBehaviour
     {
         // Check if we're in cooldown period after shooting
         bool inCooldown = Time.time < lastShootTime + movementCooldownAfterShoot;
-        
-        // Time.deltaTime represents the time that passed since the last frame
-        //the multiplication below ensures that GameObject moves constant speed every frame
+
+        // Movement
         if (Input.GetKey(KeyCode.W) && !inCooldown)
             rb.linearVelocity += this.transform.forward * speed * Time.deltaTime;
         else if (Input.GetKey(KeyCode.S) && !inCooldown)
             rb.linearVelocity -= this.transform.forward * speed * Time.deltaTime;
 
-        // Quaternion returns a rotation that rotates x degrees around the x axis and so on
+        // Rotation
         if (Input.GetKey(KeyCode.D))
             t.rotation *= Quaternion.Euler(0, rotationSpeed * Time.deltaTime, 0);
         else if (Input.GetKey(KeyCode.A))
-            t.rotation *= Quaternion.Euler(0, - rotationSpeed * Time.deltaTime, 0);
-        
+            t.rotation *= Quaternion.Euler(0, -rotationSpeed * Time.deltaTime, 0);
+
+        // Jumping
         if (Input.GetKeyDown(KeyCode.Space))
             rb.AddForce(t.up * force);
-            
-        // Limit the player's velocity to prevent flying too far
+
+        // Velocity clamp
         if (rb.linearVelocity.magnitude > maxVelocity)
         {
             rb.linearVelocity = rb.linearVelocity.normalized * maxVelocity;
         }
+
+        // Play walking sound
+        bool isMoving = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S)) && !inCooldown;
+
+        if (isMoving && !footstepAudio.isPlaying)
+        {
+            footstepAudio.Play();
+        }
+        else if (!isMoving && footstepAudio.isPlaying)
+        {
+            footstepAudio.Stop();
+        }
     }
-    
+
     // Public method to be called when shooting
     public void OnShoot()
     {
