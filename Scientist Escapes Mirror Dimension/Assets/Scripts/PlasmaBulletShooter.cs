@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // Add this for UI components
 
 public class PlasmaBulletShooter : MonoBehaviour
 {
@@ -12,12 +13,20 @@ public class PlasmaBulletShooter : MonoBehaviour
     public Color bulletColor = Color.blue;
 
     [Header("Shooting Settings")]
-    public float shootCooldown = 0.2f;
+    public float shootCooldown = 0.70f;
     private float lastShotTime;
+    
+    [Header("UI")]
+    public Image cooldownIndicator; // Reference to the UI Image for cooldown
     
     [Header("Effects")]
     public bool showMuzzleFlash = true;
     public float muzzleFlashDuration = 0.05f;
+    
+    [Header("Audio")]
+    public AudioClip shootSound;
+    private AudioSource audioSource;
+    private const float SHOOT_SOUND_DURATION = 0.60f;
     
     [Header("Recoil")]
     public float recoilForce = 2.0f; // Increased recoil force for more noticeable effect
@@ -30,6 +39,13 @@ public class PlasmaBulletShooter : MonoBehaviour
 
     void Start()
     {
+        // Add AudioSource component if it doesn't exist
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        
         // Find the player object by tag or get the parent if this script is attached to a weapon
         playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject == null)
@@ -87,6 +103,13 @@ public class PlasmaBulletShooter : MonoBehaviour
                 lastShotTime = Time.time;
             }
         }
+
+        // Update cooldown UI
+        if (cooldownIndicator != null)
+        {
+            float cooldownProgress = Mathf.Clamp01((Time.time - lastShotTime) / shootCooldown);
+            cooldownIndicator.fillAmount = cooldownProgress;
+        }
     }
 
     void ShootPlasmaBullet()
@@ -104,6 +127,12 @@ public class PlasmaBulletShooter : MonoBehaviour
         
         // Create bullet at spawn point
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+        
+        // Play shooting sound when bullet is created
+        if (shootSound != null && audioSource != null)
+        {
+            StartCoroutine(PlayShootSound());
+        }
         
         // Set bullet scale to make it thin
         bullet.transform.localScale = new Vector3(0.1f, 0.1f, 0.5f);
@@ -194,5 +223,17 @@ public class PlasmaBulletShooter : MonoBehaviour
         
         // Remove the flash
         Destroy(muzzleFlash);
+    }
+
+    IEnumerator PlayShootSound()
+    {
+        // Stop any existing sound before starting a new one
+        audioSource.Stop();
+        audioSource.clip = shootSound;
+        // Skip the first 0.35 seconds of the audio
+        audioSource.time = 0.35f;
+        audioSource.Play();
+        yield return new WaitForSeconds(SHOOT_SOUND_DURATION);
+        audioSource.Stop();
     }
 } 
