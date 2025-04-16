@@ -17,6 +17,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image healthBarFill;
     [SerializeField] private TextMeshProUGUI healthText;
     
+    [Header("Damage Flash")]
+    [SerializeField] private Image damageFlashImage;
+    [SerializeField] private float flashDuration = 0.2f;
+    [SerializeField] private Color flashColor = new Color(1f, 0f, 0f, 0.3f);
+    
     private void Awake()
     {
         // Create UI components if they don't exist
@@ -173,6 +178,23 @@ public class UIManager : MonoBehaviour
             healthTextRect.sizeDelta = Vector2.zero;
         }
         
+        // Create damage flash overlay if it doesn't exist
+        if (damageFlashImage == null)
+        {
+            GameObject flashObj = new GameObject("Damage Flash");
+            flashObj.transform.SetParent(mainCanvas.transform, false);
+            
+            damageFlashImage = flashObj.AddComponent<Image>();
+            damageFlashImage.color = new Color(1f, 0f, 0f, 0f); // Start transparent
+            
+            // Make it cover the whole screen
+            RectTransform flashRect = flashObj.GetComponent<RectTransform>();
+            flashRect.anchorMin = Vector2.zero;
+            flashRect.anchorMax = Vector2.one;
+            flashRect.sizeDelta = Vector2.zero;
+            flashRect.anchoredPosition = Vector2.zero;
+        }
+        
         // Hide UI elements initially
         HideInteractionPrompt();
         HideDialogue();
@@ -254,5 +276,36 @@ public class UIManager : MonoBehaviour
                 healthBarBgRect.sizeDelta = new Vector2(-20, 20 * scale);
             }
         }
+    }
+    
+    public void ShowDamageFlash()
+    {
+        StartCoroutine(FlashRoutine());
+    }
+    
+    private IEnumerator FlashRoutine()
+    {
+        // Fade in
+        float elapsed = 0f;
+        while (elapsed < flashDuration / 2)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, flashColor.a, elapsed / (flashDuration / 2));
+            damageFlashImage.color = new Color(flashColor.r, flashColor.g, flashColor.b, alpha);
+            yield return null;
+        }
+        
+        // Fade out
+        elapsed = 0f;
+        while (elapsed < flashDuration / 2)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(flashColor.a, 0f, elapsed / (flashDuration / 2));
+            damageFlashImage.color = new Color(flashColor.r, flashColor.g, flashColor.b, alpha);
+            yield return null;
+        }
+        
+        // Ensure it's completely transparent at the end
+        damageFlashImage.color = new Color(flashColor.r, flashColor.g, flashColor.b, 0f);
     }
 } 

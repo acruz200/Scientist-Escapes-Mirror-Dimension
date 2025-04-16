@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI; // Add this for UI components
 
 public class BackgroundMusicController : MonoBehaviour
 {
@@ -8,6 +9,12 @@ public class BackgroundMusicController : MonoBehaviour
     private AudioSource audioSource;
     private const float BGM_DURATION = 22.5f;
     private bool hasPlayedInitial = false;
+    private bool isMusicPaused = false;
+
+    [Header("UI")]
+    public Image musicIcon; // Reference to the music icon image
+    public Sprite musicOnSprite; // Sprite for when music is playing
+    public Sprite musicOffSprite; // Sprite for when music is paused
 
     void Start()
     {
@@ -20,6 +27,44 @@ public class BackgroundMusicController : MonoBehaviour
         if (backgroundMusic != null)
         {
             StartCoroutine(PlayBackgroundMusic());
+        }
+
+        // Set initial icon state
+        UpdateMusicIcon();
+    }
+
+    void Update()
+    {
+        // Toggle music with M key
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ToggleMusic();
+        }
+    }
+
+    public void ToggleMusic()
+    {
+        if (audioSource != null)
+        {
+            if (isMusicPaused)
+            {
+                audioSource.UnPause();
+                isMusicPaused = false;
+            }
+            else
+            {
+                audioSource.Pause();
+                isMusicPaused = true;
+            }
+            UpdateMusicIcon();
+        }
+    }
+
+    void UpdateMusicIcon()
+    {
+        if (musicIcon != null)
+        {
+            musicIcon.sprite = isMusicPaused ? musicOffSprite : musicOnSprite;
         }
     }
 

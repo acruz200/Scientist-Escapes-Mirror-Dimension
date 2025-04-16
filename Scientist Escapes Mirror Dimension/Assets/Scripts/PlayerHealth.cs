@@ -41,6 +41,12 @@ public class PlayerHealth : MonoBehaviour
         
         UpdateHealthBar();
         
+        // Show damage flash
+        if (uiManager != null)
+        {
+            uiManager.ShowDamageFlash();
+        }
+        
         if (currentHealth <= 0f)
         {
             Die();
@@ -108,12 +114,6 @@ public class PlayerHealth : MonoBehaviour
     // Debug method to test health system
     void Update()
     {
-        // Test taking damage (press T key)
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TakeDamage(10f);
-        }
-        
         // Test healing (press H key)
         if (Input.GetKeyDown(KeyCode.H))
         {
