@@ -20,12 +20,18 @@ public class StreetLampController : MonoBehaviour
     [SerializeField] private float glowIntensity = 1.5f;
     [SerializeField] private string lightPartName = "Light"; // Name of the light part of the lamp
     
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip switchOnSound;
+    [SerializeField] private AudioClip switchOffSound;
+    [SerializeField] private float soundVolume = 0.7f;
+    
     private Light lampLight;
     private Material lampMaterial;
     private MeshRenderer lampRenderer;
     private float baseIntensity;
     private float flickerTimer = 0f;
     private GameObject lightObject; // Reference to the light GameObject
+    private AudioSource audioSource;
     
     void Start()
     {
@@ -96,6 +102,17 @@ public class StreetLampController : MonoBehaviour
         if (enableGlow)
         {
             SetupGlow(lamp);
+        }
+        
+        // Setup audio source
+        audioSource = lamp.GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = lamp.AddComponent<AudioSource>();
+            audioSource.spatialBlend = 1.0f; // 3D sound
+            audioSource.minDistance = 2.0f;
+            audioSource.maxDistance = 15.0f; // Street lamps can be heard from further away
+            audioSource.volume = soundVolume;
         }
     }
     
@@ -190,6 +207,9 @@ public class StreetLampController : MonoBehaviour
             // For Unlit/Color shader, we just need to set the color
             lampMaterial.color = glowColor * glowIntensity;
         }
+        
+        // Play switch on sound
+        PlaySwitchSound(true);
     }
     
     public void TurnOff()
@@ -203,6 +223,30 @@ public class StreetLampController : MonoBehaviour
         {
             // For Unlit/Color shader, we just set the color to black
             lampMaterial.color = Color.black;
+        }
+        
+        // Play switch off sound
+        PlaySwitchSound(false);
+    }
+    
+    private void PlaySwitchSound(bool turnOn)
+    {
+        if (audioSource != null)
+        {
+            // Stop any currently playing sounds
+            audioSource.Stop();
+            
+            // Play the appropriate clip
+            AudioClip clipToPlay = turnOn ? switchOnSound : switchOffSound;
+            
+            if (clipToPlay != null)
+            {
+                audioSource.PlayOneShot(clipToPlay, soundVolume);
+            }
+            else
+            {
+                Debug.LogWarning("Street lamp switch " + (turnOn ? "on" : "off") + " sound is missing. Please assign an AudioClip in the Inspector.");
+            }
         }
     }
     

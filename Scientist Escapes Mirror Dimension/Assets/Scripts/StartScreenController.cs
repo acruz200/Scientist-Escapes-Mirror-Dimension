@@ -14,7 +14,7 @@ public class StartScreenController : MonoBehaviour
     [SerializeField] private GameObject optionsPanel;
     
     [Header("Settings")]
-    [SerializeField] private string gameSceneName = "GameScene"; // Change this to your actual game scene name
+    [SerializeField] private string gameSceneName = "SampleScene"; // Change to the actual main game scene
     [SerializeField] private float buttonHoverScale = 1.1f;
     [SerializeField] private AudioClip buttonHoverSound;
     [SerializeField] private AudioClip buttonClickSound;
@@ -58,20 +58,59 @@ public class StartScreenController : MonoBehaviour
         // Add pointer enter event
         EventTrigger.Entry enterEntry = new EventTrigger.Entry();
         enterEntry.eventID = EventTriggerType.PointerEnter;
-        enterEntry.callback.AddListener((data) => {
-            button.transform.localScale = Vector3.one * buttonHoverScale;
-            if (buttonHoverSound != null && audioSource != null)
-                audioSource.PlayOneShot(buttonHoverSound);
-        });
+        enterEntry.callback.AddListener(OnPointerEnter);
         trigger.triggers.Add(enterEntry);
         
         // Add pointer exit event
         EventTrigger.Entry exitEntry = new EventTrigger.Entry();
         exitEntry.eventID = EventTriggerType.PointerExit;
-        exitEntry.callback.AddListener((data) => {
-            button.transform.localScale = Vector3.one;
-        });
+        exitEntry.callback.AddListener(OnPointerExit);
         trigger.triggers.Add(exitEntry);
+        
+        // Store the button reference for callbacks
+        trigger.gameObject.AddComponent<ButtonReference>().Initialize(button, buttonHoverScale, audioSource, buttonHoverSound);
+    }
+    
+    // Helper component to store button reference
+    private class ButtonReference : MonoBehaviour
+    {
+        public Button button;
+        public float scale;
+        public AudioSource audio;
+        public AudioClip hoverSound;
+        
+        public void Initialize(Button btn, float scl, AudioSource aud, AudioClip sound)
+        {
+            button = btn;
+            scale = scl;
+            audio = aud;
+            hoverSound = sound;
+        }
+    }
+    
+    // Event callbacks
+    public void OnPointerEnter(BaseEventData eventData)
+    {
+        GameObject go = ((PointerEventData)eventData).pointerEnter;
+        ButtonReference buttonRef = go.GetComponent<ButtonReference>();
+        if (buttonRef != null && buttonRef.button != null)
+        {
+            buttonRef.button.transform.localScale = Vector3.one * buttonRef.scale;
+            if (buttonRef.hoverSound != null && buttonRef.audio != null)
+                buttonRef.audio.PlayOneShot(buttonRef.hoverSound);
+        }
+    }
+    
+    public void OnPointerExit(BaseEventData eventData)
+    {
+        GameObject go = ((PointerEventData)eventData).pointerCurrentRaycast.gameObject;
+        if (go == null) return;
+        
+        ButtonReference buttonRef = go.GetComponent<ButtonReference>();
+        if (buttonRef != null && buttonRef.button != null)
+        {
+            buttonRef.button.transform.localScale = Vector3.one;
+        }
     }
     
     public void StartGame()

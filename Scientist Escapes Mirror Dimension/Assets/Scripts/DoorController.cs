@@ -16,6 +16,11 @@ public class DoorController : MonoBehaviour
     [SerializeField] private float interactionDistance = 5f; // Increased default distance
     [SerializeField] private string promptMessage = "Press E to open/close";
     
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip doorOpenSound;
+    [SerializeField] private AudioClip doorCloseSound;
+    [SerializeField] private float soundVolume = 1.0f;
+    
     private bool isOpen = false;
     private bool isAnimating = false;
     private float currentAngle = 0f;
@@ -25,6 +30,7 @@ public class DoorController : MonoBehaviour
     private GameObject player;
     private UIManager uiManager;
     private bool playerInRange = false;
+    private AudioSource audioSource;
     
     void Start()
     {
@@ -51,6 +57,17 @@ public class DoorController : MonoBehaviour
             // Create a new UIManager if it doesn't exist
             GameObject uiManagerObj = new GameObject("UIManager");
             uiManager = uiManagerObj.AddComponent<UIManager>();
+        }
+        
+        // Set up audio source
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.spatialBlend = 1.0f; // 3D sound
+            audioSource.minDistance = 2.0f;
+            audioSource.maxDistance = 10.0f;
+            audioSource.volume = soundVolume;
         }
     }
     
@@ -105,6 +122,9 @@ public class DoorController : MonoBehaviour
     {
         isOpen = !isOpen;
         isAnimating = true;
+        
+        // Play appropriate sound
+        PlayDoorSound(isOpen);
     }
     
     private void AnimateDoor()
@@ -145,6 +165,9 @@ public class DoorController : MonoBehaviour
         {
             isOpen = true;
             isAnimating = true;
+            
+            // Play door open sound
+            PlayDoorSound(true);
         }
     }
     
@@ -154,6 +177,9 @@ public class DoorController : MonoBehaviour
         {
             isOpen = false;
             isAnimating = true;
+            
+            // Play door close sound
+            PlayDoorSound(false);
         }
     }
     
@@ -164,5 +190,26 @@ public class DoorController : MonoBehaviour
         // Recalculate target rotation
         float direction = openForward ? 1f : -1f;
         targetRotation = Quaternion.Euler(rotationAxis * openAngle * direction);
+    }
+    
+    private void PlayDoorSound(bool opening)
+    {
+        if (audioSource != null)
+        {
+            // Stop any currently playing sounds
+            audioSource.Stop();
+            
+            // Play the appropriate clip
+            AudioClip clipToPlay = opening ? doorOpenSound : doorCloseSound;
+            
+            if (clipToPlay != null)
+            {
+                audioSource.PlayOneShot(clipToPlay, soundVolume);
+            }
+            else
+            {
+                Debug.LogWarning("Door " + (opening ? "open" : "close") + " sound is missing. Please assign an AudioClip in the Inspector.");
+            }
+        }
     }
 } 

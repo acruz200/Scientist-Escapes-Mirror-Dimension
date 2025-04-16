@@ -17,10 +17,16 @@ public class LampController : MonoBehaviour
     [SerializeField] private KeyCode toggleKey = KeyCode.E;
     [SerializeField] private float interactionDistance = 3f;
     
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip switchOnSound;
+    [SerializeField] private AudioClip switchOffSound;
+    [SerializeField] private float soundVolume = 0.7f;
+    
     private GameObject player;
     private UIManager uiManager;
     private bool playerInRange = false;
     private GameObject lightObject;
+    private AudioSource audioSource;
     
     void Start()
     {
@@ -45,6 +51,17 @@ public class LampController : MonoBehaviour
                 // Store reference to the light's GameObject
                 lightObject = lampLight.gameObject;
             }
+        }
+        
+        // Setup audio source
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.spatialBlend = 1.0f; // 3D sound
+            audioSource.minDistance = 1.5f;
+            audioSource.maxDistance = 8.0f;
+            audioSource.volume = soundVolume;
         }
         
         // Set initial light state
@@ -99,18 +116,33 @@ public class LampController : MonoBehaviour
     {
         isOn = !isOn;
         UpdateLightState();
+        
+        // Play appropriate sound
+        PlaySwitchSound(isOn);
     }
     
     public void TurnOn()
     {
-        isOn = true;
-        UpdateLightState();
+        if (!isOn)
+        {
+            isOn = true;
+            UpdateLightState();
+            
+            // Play on sound
+            PlaySwitchSound(true);
+        }
     }
     
     public void TurnOff()
     {
-        isOn = false;
-        UpdateLightState();
+        if (isOn)
+        {
+            isOn = false;
+            UpdateLightState();
+            
+            // Play off sound
+            PlaySwitchSound(false);
+        }
     }
     
     private void UpdateLightState()
@@ -118,6 +150,27 @@ public class LampController : MonoBehaviour
         if (lampLight != null)
         {
             lampLight.enabled = isOn;
+        }
+    }
+    
+    private void PlaySwitchSound(bool turnOn)
+    {
+        if (audioSource != null)
+        {
+            // Stop any currently playing sounds
+            audioSource.Stop();
+            
+            // Play the appropriate clip
+            AudioClip clipToPlay = turnOn ? switchOnSound : switchOffSound;
+            
+            if (clipToPlay != null)
+            {
+                audioSource.PlayOneShot(clipToPlay, soundVolume);
+            }
+            else
+            {
+                Debug.LogWarning("Switch " + (turnOn ? "on" : "off") + " sound is missing. Please assign an AudioClip in the Inspector.");
+            }
         }
     }
     

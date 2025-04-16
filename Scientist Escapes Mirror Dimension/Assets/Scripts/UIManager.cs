@@ -229,4 +229,30 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+    
+    public void SetHealthBarScale(float scale)
+    {
+        if (healthBarPanel != null)
+        {
+            // Get the current size
+            RectTransform healthPanelRect = healthBarPanel.GetComponent<RectTransform>();
+            
+            // Apply new scale - base size is 300x40
+            healthPanelRect.sizeDelta = new Vector2(300 * scale, 40 * scale);
+            
+            // Adjust font size for the health text if it exists
+            if (healthText != null)
+            {
+                healthText.fontSize = 18 * scale;
+            }
+            
+            // Find the health bar background and adjust its size
+            Transform healthBarBg = healthBarPanel.transform.Find("Health Bar Background");
+            if (healthBarBg != null)
+            {
+                RectTransform healthBarBgRect = healthBarBg.GetComponent<RectTransform>();
+                healthBarBgRect.sizeDelta = new Vector2(-20, 20 * scale);
+            }
+        }
+    }
 } 

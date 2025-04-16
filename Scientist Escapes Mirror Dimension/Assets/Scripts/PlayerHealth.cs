@@ -8,6 +8,9 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
     
+    [Header("UI Settings")]
+    [SerializeField] private float healthBarScale = 4.0f; // Controls the health bar size
+    
     private UIManager uiManager;
     
     void Start()
@@ -23,6 +26,9 @@ public class PlayerHealth : MonoBehaviour
             GameObject uiManagerObj = new GameObject("UIManager");
             uiManager = uiManagerObj.AddComponent<UIManager>();
         }
+        
+        // Set health bar scale
+        uiManager.SetHealthBarScale(healthBarScale);
         
         // Update health bar
         UpdateHealthBar();
@@ -62,7 +68,41 @@ public class PlayerHealth : MonoBehaviour
         // Handle player death
         Debug.Log("Player died!");
         
-        // You can implement respawn logic or game over screen here
+        // Disable player controls
+        CharacterController controller = GetComponent<CharacterController>();
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+        
+        // Disable any player input scripts
+        foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
+        {
+            if (script != this && script.GetType().Name != "UIManager")
+            {
+                script.enabled = false;
+            }
+        }
+        
+        // Show game over screen
+        StartCoroutine(ShowGameOver());
+    }
+    
+    private IEnumerator ShowGameOver()
+    {
+        // Wait a short delay before showing game over
+        yield return new WaitForSeconds(1.5f);
+        
+        // Find or create GameOverManager
+        GameOverManager gameOverManager = FindObjectOfType<GameOverManager>();
+        if (gameOverManager == null)
+        {
+            GameObject gameOverObj = new GameObject("GameOverManager");
+            gameOverManager = gameOverObj.AddComponent<GameOverManager>();
+        }
+        
+        // Show game over screen
+        gameOverManager.ShowGameOver();
     }
     
     // Debug method to test health system
