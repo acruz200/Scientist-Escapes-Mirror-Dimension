@@ -1,7 +1,7 @@
 # PlasmaBulletShooter Script Documentation
 
 ## Overview
-The PlasmaBulletShooter script handles the creation and behavior of plasma bullets in the game, including shooting mechanics, visual effects, and audio feedback.
+The PlasmaBulletShooter script handles the creation and behavior of plasma bullets in the game, including shooting mechanics, visual effects, audio feedback, and weapon status indicators.
 
 ## Features
 
@@ -16,6 +16,9 @@ The PlasmaBulletShooter script handles the creation and behavior of plasma bulle
 - **shootCooldown**: Time between shots (default: 0.70f)
 - Right mouse button trigger for shooting
 - Cooldown system to prevent rapid firing
+- Visual cooldown indicator in bottom-right corner:
+  - Blue circle when gun is ready to shoot
+  - Red circle when gun is on cooldown
 
 ### Visual Effects
 - **showMuzzleFlash**: Toggle for muzzle flash effect
@@ -59,10 +62,12 @@ The PlasmaBulletShooter script handles the creation and behavior of plasma bulle
 - Finds and validates player object
 - Creates bullet spawn point if not assigned
 - Configures player references and tags
+- Initializes cooldown indicator UI
 
 ### Update Method
 - Checks for right mouse button input
 - Enforces shooting cooldown
+- Updates cooldown indicator UI state
 - Triggers shooting when conditions are met
 
 ### ShootPlasmaBullet Method
@@ -72,6 +77,7 @@ The PlasmaBulletShooter script handles the creation and behavior of plasma bulle
 - Sets up bullet physics
 - Applies recoil forces
 - Configures bullet properties
+- Updates cooldown indicator to red state
 
 ### Coroutines
 - **ShowMuzzleFlash**: Creates and manages muzzle flash effect
@@ -82,4 +88,7 @@ The PlasmaBulletShooter script handles the creation and behavior of plasma bulle
 2. Assign bullet prefab
 3. Set up bullet spawn point
 4. Configure audio clips and visual settings
-5. Adjust physics and recoil values as needed 
+5. Set up cooldown indicator UI:
+   - Assign readySprite (blue circle) and cooldownSprite (red circle)
+   - Position the cooldownIndicator Image component in the bottom-right corner
+6. Adjust physics and recoil values as needed 

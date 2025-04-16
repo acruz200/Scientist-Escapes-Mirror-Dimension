@@ -1,3 +1,23 @@
+/*
+ * PlasmaBulletShooter
+ * 
+ * This script handles the plasma gun mechanics, including:
+ * - Shooting plasma bullets with right mouse button
+ * - Visual cooldown indicator in bottom-right corner
+ * - Recoil effects and player movement integration
+ * - Visual and audio effects for shooting
+ * 
+ * Features:
+ * - Right-click to fire plasma bullets
+ * - Cooldown indicator shows gun status:
+ *   - Blue circle: Gun is ready to shoot
+ *   - Red circle: Gun is on cooldown
+ * - 0.70 second cooldown between shots
+ * - Visual muzzle flash effect
+ * - Shooting sound effects
+ * - Recoil force applied to player
+ */
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +38,8 @@ public class PlasmaBulletShooter : MonoBehaviour
     
     [Header("UI")]
     public Image cooldownIndicator; // Reference to the UI Image for cooldown
+    public Sprite readySprite;      // Blue circle sprite
+    public Sprite cooldownSprite;   // Red circle sprite
     
     [Header("Effects")]
     public bool showMuzzleFlash = true;
@@ -69,9 +91,7 @@ public class PlasmaBulletShooter : MonoBehaviour
             // Create a new bullet spawn point as a child of this object
             GameObject spawnPointObj = new GameObject("BulletSpawnPoint");
             spawnPointObj.transform.parent = transform;
-            
-            // Position it at the front of the gun (assuming the gun is oriented with forward along the z-axis)
-            // You may need to adjust these values based on your gun model
+          
             spawnPointObj.transform.localPosition = new Vector3(0, 0, 0.5f);
             
             // Set the bullet spawn point reference
@@ -107,8 +127,15 @@ public class PlasmaBulletShooter : MonoBehaviour
         // Update cooldown UI
         if (cooldownIndicator != null)
         {
-            float cooldownProgress = Mathf.Clamp01((Time.time - lastShotTime) / shootCooldown);
-            cooldownIndicator.fillAmount = cooldownProgress;
+            // Switch sprites based on cooldown
+            if (Time.time > lastShotTime + shootCooldown)
+            {
+                cooldownIndicator.sprite = readySprite;    // Blue when ready
+            }
+            else
+            {
+                cooldownIndicator.sprite = cooldownSprite; // Red when on cooldown
+            }
         }
     }
 
@@ -236,4 +263,4 @@ public class PlasmaBulletShooter : MonoBehaviour
         yield return new WaitForSeconds(SHOOT_SOUND_DURATION);
         audioSource.Stop();
     }
-} 
+}
