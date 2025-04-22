@@ -7,6 +7,8 @@ using TMPro;
 
 public class GameOverManager : MonoBehaviour
 {
+    public static GameOverManager instance;
+
     [Header("UI Elements")]
     private GameObject gameOverPanel;
     private Button restartButton;
@@ -18,8 +20,19 @@ public class GameOverManager : MonoBehaviour
     
     private void Awake()
     {
-        // Make this persist across scene loads
-        DontDestroyOnLoad(gameObject);
+        // Singleton pattern: Ensure only one instance exists
+        if (instance == null)
+        {
+            instance = this;
+            // Make this persist across scene loads
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            // If another instance already exists, destroy this one
+            Destroy(gameObject);
+            return;
+        }
     }
     
     public void ShowGameOver()
@@ -42,6 +55,14 @@ public class GameOverManager : MonoBehaviour
             mainCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvasObj.AddComponent<CanvasScaler>();
             canvasObj.AddComponent<GraphicRaycaster>();
+        }
+
+        // Ensure an EventSystem exists for UI interaction
+        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
         }
         
         // Create game over panel
@@ -144,6 +165,51 @@ public class GameOverManager : MonoBehaviour
             // Add main menu button functionality
             mainMenuButton.onClick.AddListener(GoToMainMenu);
             
+            // --- Add Credits --- 
+
+            // Create Team Names Text
+            GameObject teamNamesTextObj = new GameObject("Team Names Text");
+            teamNamesTextObj.transform.SetParent(gameOverPanel.transform, false);
+            TextMeshProUGUI teamNamesText = teamNamesTextObj.AddComponent<TextMeshProUGUI>();
+            teamNamesText.text = "Junaid Ali\nAlex Cruz\nSyed Ali";
+            teamNamesText.fontSize = 24;
+            teamNamesText.alignment = TextAlignmentOptions.Center;
+            teamNamesText.color = Color.white;
+            RectTransform teamNamesRect = teamNamesTextObj.GetComponent<RectTransform>();
+            teamNamesRect.anchorMin = new Vector2(0.5f, 0.2f);
+            teamNamesRect.anchorMax = new Vector2(0.5f, 0.2f);
+            teamNamesRect.sizeDelta = new Vector2(600, 80);
+            teamNamesRect.anchoredPosition = new Vector2(0, -20); // Position below menu button
+
+            // Create Course Info Text
+            GameObject courseInfoTextObj = new GameObject("Course Info Text");
+            courseInfoTextObj.transform.SetParent(gameOverPanel.transform, false);
+            TextMeshProUGUI courseInfoText = courseInfoTextObj.AddComponent<TextMeshProUGUI>();
+            courseInfoText.text = "Developed at UIC as part of CS426 Videogame Design";
+            courseInfoText.fontSize = 18;
+            courseInfoText.alignment = TextAlignmentOptions.Center;
+            courseInfoText.color = Color.gray;
+            RectTransform courseInfoRect = courseInfoTextObj.GetComponent<RectTransform>();
+            courseInfoRect.anchorMin = new Vector2(0.5f, 0.1f);
+            courseInfoRect.anchorMax = new Vector2(0.5f, 0.1f);
+            courseInfoRect.sizeDelta = new Vector2(700, 30);
+            courseInfoRect.anchoredPosition = new Vector2(0, -40); // Position further down
+
+            // Create Asset Credits Placeholder Text
+            GameObject assetCreditsTextObj = new GameObject("Asset Credits Placeholder");
+            assetCreditsTextObj.transform.SetParent(gameOverPanel.transform, false);
+            TextMeshProUGUI assetCreditsText = assetCreditsTextObj.AddComponent<TextMeshProUGUI>();
+            assetCreditsText.text = "[Art and Sound Credits Placeholder - List assets used here]";
+            assetCreditsText.fontSize = 16;
+            assetCreditsText.fontStyle = FontStyles.Italic;
+            assetCreditsText.alignment = TextAlignmentOptions.Center;
+            assetCreditsText.color = Color.gray;
+            RectTransform assetCreditsRect = assetCreditsTextObj.GetComponent<RectTransform>();
+            assetCreditsRect.anchorMin = new Vector2(0.5f, 0.05f);
+            assetCreditsRect.anchorMax = new Vector2(0.5f, 0.05f);
+            assetCreditsRect.sizeDelta = new Vector2(700, 30);
+            assetCreditsRect.anchoredPosition = Vector2.zero;
+
             // Initially hide the panel
             gameOverPanel.SetActive(false);
         }

@@ -12,6 +12,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float healthBarScale = 4.0f; // Controls the health bar size
     
     private UIManager uiManager;
+    private bool isDead = false; // Flag to prevent multiple deaths
     
     void Start()
     {
@@ -36,6 +37,9 @@ public class PlayerHealth : MonoBehaviour
     
     public void TakeDamage(float damageAmount)
     {
+        // If player is already dead, don't process further damage
+        if (isDead) return;
+
         currentHealth -= damageAmount;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         
@@ -71,6 +75,10 @@ public class PlayerHealth : MonoBehaviour
     
     private void Die()
     {
+        // Prevent Die() from being called multiple times
+        if (isDead) return;
+        isDead = true; // Set the flag
+
         // Handle player death
         Debug.Log("Player died!");
         
@@ -98,7 +106,10 @@ public class PlayerHealth : MonoBehaviour
     {
         // Wait a short delay before showing game over
         yield return new WaitForSeconds(1.5f);
-        
+
+        // Ensure time is running for the Game Over UI animations/interactions
+        Time.timeScale = 1f;
+
         // Find or create GameOverManager
         GameOverManager gameOverManager = FindObjectOfType<GameOverManager>();
         if (gameOverManager == null)
