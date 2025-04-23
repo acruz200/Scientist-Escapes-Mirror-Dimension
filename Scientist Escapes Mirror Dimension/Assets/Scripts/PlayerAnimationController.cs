@@ -6,6 +6,9 @@ public class PlayerAnimationController : MonoBehaviour
     [Tooltip("Minimum velocity magnitude required to be considered 'moving'")]
     [SerializeField] private float movementThreshold = 0.1f;
     
+    [Tooltip("Whether to apply root motion from animations")]
+    [SerializeField] private bool applyRootMotion = false;
+    
     // Animation parameter names
     private const string ANIM_IS_WALKING = "isWalking";
     
@@ -24,7 +27,11 @@ public class PlayerAnimationController : MonoBehaviour
         if (animator == null)
         {
             Debug.LogError("No Animator component found on " + gameObject.name);
+            return;
         }
+        
+        // Disable root motion to prevent animation from moving the character
+        animator.applyRootMotion = applyRootMotion;
         
         // Try to get the movement component (use either CharacterController or Rigidbody)
         characterController = GetComponent<CharacterController>();
@@ -33,6 +40,10 @@ public class PlayerAnimationController : MonoBehaviour
             // If no CharacterController, try Rigidbody
             rb = GetComponent<Rigidbody>();
         }
+        
+        // Make sure "Walk" animation is set to loop in the import settings
+        // We can't do this programmatically, but we can remind in the console
+        Debug.Log("Reminder: Ensure your walk animation has 'Loop Time' checked in the import settings!");
     }
 
     void Update()
@@ -66,11 +77,18 @@ public class PlayerAnimationController : MonoBehaviour
             isCurrentlyWalking = Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f;
         }
         
-        // Only update the parameter if it changed to avoid spamming the Animator
-        if (isCurrentlyWalking != wasWalking)
+        // Force immediate update to animation state to avoid sticking
+        animator.SetBool(ANIM_IS_WALKING, isCurrentlyWalking);
+        wasWalking = isCurrentlyWalking;
+    }
+    
+    // Add a method to reset animation state - call this from other scripts when needed
+    public void ResetAnimationState()
+    {
+        if (animator != null)
         {
-            animator.SetBool(ANIM_IS_WALKING, isCurrentlyWalking);
-            wasWalking = isCurrentlyWalking;
+            animator.SetBool(ANIM_IS_WALKING, false);
+            wasWalking = false;
         }
     }
     
@@ -83,4 +101,10 @@ public class PlayerAnimationController : MonoBehaviour
             wasWalking = walking;
         }
     }
+    
+    // Notes for configuring walking animation:
+    // 1. In the FBX import settings for the walk animation, check "Loop Time" to make it loop continuously
+    // 2. In the FBX import settings, if the character moves forward during animation:
+    //    - Option A: Check "Bake Into Pose" under Root Transform Position (Y/XZ)
+    //    - Option B: Keep applyRootMotion = false in this script to ignore forward movement
 } 
