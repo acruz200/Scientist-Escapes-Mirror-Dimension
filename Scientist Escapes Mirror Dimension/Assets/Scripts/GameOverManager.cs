@@ -217,7 +217,9 @@ public class GameOverManager : MonoBehaviour
                              "LeanTween\n\n" +
                              "<b>Audio (from Pixabay):</b>\n" +
                              "Open Door Sound (247415)\n" +
-                             "Switch Sound (150130)";
+                             "Switch Sound (150130)\n" +
+                             "Lego Walking (208360)\n" +
+                             "Monster Growl (251374)";
 
             assetCreditsText.text = credits;
             assetCreditsText.fontSize = 32; // Doubled font size
