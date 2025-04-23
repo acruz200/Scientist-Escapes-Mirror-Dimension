@@ -7,6 +7,7 @@ TagManager:
   - TestInteract
   - StreetLamp
   - Bullet
+  - Zombie
   layers:
   - Default
   - TransparentFX

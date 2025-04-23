@@ -69,7 +69,25 @@ public class PlasmaBulletBehavior : MonoBehaviour
         {
             return;
         }
-        
+
+        // --- Damage Zombie --- 
+        if (other.CompareTag("Zombie"))
+        {
+            ZombieHealth zombieHealth = other.GetComponent<ZombieHealth>();
+            if (zombieHealth != null)
+            {
+                // Use the damage value defined in this bullet script (default is 10f)
+                // Let's change it to 20f as requested
+                float damageToDeal = 20f; // Or you could use the public damage variable
+                zombieHealth.TakeDamage(damageToDeal);
+
+                // Destroy the bullet immediately after damaging the zombie
+                Destroy(gameObject);
+                return; // Stop further processing for this collision
+            }
+        }
+        // ------------------
+
         // If we hit the ground, propel the player upward
         if (other.CompareTag("Ground") || IsGroundSurface(other))
         {
@@ -85,7 +103,7 @@ public class PlasmaBulletBehavior : MonoBehaviour
         }
         */
         
-        // Destroy the bullet on impact
+        // Destroy the bullet on impact with anything else (other than Player/Bullet/Zombie)
         Destroy(gameObject);
     }
     
