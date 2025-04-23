@@ -167,48 +167,69 @@ public class GameOverManager : MonoBehaviour
             
             // --- Add Credits --- 
 
-            // Create Team Names Text
+            // Create Team Names Text (Centered)
             GameObject teamNamesTextObj = new GameObject("Team Names Text");
             teamNamesTextObj.transform.SetParent(gameOverPanel.transform, false);
             TextMeshProUGUI teamNamesText = teamNamesTextObj.AddComponent<TextMeshProUGUI>();
-            teamNamesText.text = "Junaid Ali\nAlex Cruz\nSyed Ali";
-            teamNamesText.fontSize = 24;
-            teamNamesText.alignment = TextAlignmentOptions.Center;
+            teamNamesText.text = "<b>Team</b>\nJunaid Ali\nAlex Cruz\nSyed Ali";
+            teamNamesText.fontSize = 24; // Restore original size
+            teamNamesText.alignment = TextAlignmentOptions.Center; // Restore center alignment
             teamNamesText.color = Color.white;
             RectTransform teamNamesRect = teamNamesTextObj.GetComponent<RectTransform>();
-            teamNamesRect.anchorMin = new Vector2(0.5f, 0.2f);
+            // Restore original anchor/position
+            teamNamesRect.anchorMin = new Vector2(0.5f, 0.2f); 
             teamNamesRect.anchorMax = new Vector2(0.5f, 0.2f);
-            teamNamesRect.sizeDelta = new Vector2(600, 80);
-            teamNamesRect.anchoredPosition = new Vector2(0, -20); // Position below menu button
+            teamNamesRect.pivot = new Vector2(0.5f, 0.5f); // Default center pivot
+            teamNamesRect.sizeDelta = new Vector2(600, 80); // Restore original size
+            teamNamesRect.anchoredPosition = new Vector2(0, -20); // Restore original position
 
-            // Create Course Info Text
+            // Create Course Info Text (Centered)
             GameObject courseInfoTextObj = new GameObject("Course Info Text");
             courseInfoTextObj.transform.SetParent(gameOverPanel.transform, false);
             TextMeshProUGUI courseInfoText = courseInfoTextObj.AddComponent<TextMeshProUGUI>();
             courseInfoText.text = "Developed at UIC as part of CS426 Videogame Design";
-            courseInfoText.fontSize = 18;
-            courseInfoText.alignment = TextAlignmentOptions.Center;
+            courseInfoText.fontSize = 18; // Restore original size
+            courseInfoText.alignment = TextAlignmentOptions.Center; // Restore center alignment
             courseInfoText.color = Color.gray;
             RectTransform courseInfoRect = courseInfoTextObj.GetComponent<RectTransform>();
-            courseInfoRect.anchorMin = new Vector2(0.5f, 0.1f);
+            // Restore original anchor/position
+            courseInfoRect.anchorMin = new Vector2(0.5f, 0.1f); 
             courseInfoRect.anchorMax = new Vector2(0.5f, 0.1f);
-            courseInfoRect.sizeDelta = new Vector2(700, 30);
-            courseInfoRect.anchoredPosition = new Vector2(0, -40); // Position further down
+            courseInfoRect.pivot = new Vector2(0.5f, 0.5f); // Default center pivot
+            courseInfoRect.sizeDelta = new Vector2(700, 30); // Restore original size
+            courseInfoRect.anchoredPosition = new Vector2(0, -40); // Restore original position
 
-            // Create Asset Credits Placeholder Text
-            GameObject assetCreditsTextObj = new GameObject("Asset Credits Placeholder");
+            // Create Asset Credits Text (Right Side)
+            GameObject assetCreditsTextObj = new GameObject("Asset Credits Text");
             assetCreditsTextObj.transform.SetParent(gameOverPanel.transform, false);
             TextMeshProUGUI assetCreditsText = assetCreditsTextObj.AddComponent<TextMeshProUGUI>();
-            assetCreditsText.text = "[Art and Sound Credits Placeholder - List assets used here]";
-            assetCreditsText.fontSize = 16;
-            assetCreditsText.fontStyle = FontStyles.Italic;
-            assetCreditsText.alignment = TextAlignmentOptions.Center;
+            
+            // Format the credits string (Keep this updated content)
+            string credits = "<b>Asset Credits</b>\n\n" +
+                             "<b>Animations/Models:</b>\n" +
+                             "Mixamo\n" +
+                             "Prisoner B Styperek\n" +
+                             "Vanguard By T. Choonyung @Taunt\n\n" +
+                             "<b>Unity Asset Store:</b>\n" +
+                             "Chemistry Lab Items Pack\n" +
+                             "Low Poly Cartoon House Interiors\n" +
+                             "FREE Trees\n" +
+                             "LeanTween\n\n" +
+                             "<b>Audio (from Pixabay):</b>\n" +
+                             "Open Door Sound (247415)\n" +
+                             "Switch Sound (150130)";
+
+            assetCreditsText.text = credits;
+            assetCreditsText.fontSize = 32; // Doubled font size
+            assetCreditsText.alignment = TextAlignmentOptions.TopLeft; // Align text to the left within its own box
             assetCreditsText.color = Color.gray;
             RectTransform assetCreditsRect = assetCreditsTextObj.GetComponent<RectTransform>();
-            assetCreditsRect.anchorMin = new Vector2(0.5f, 0.05f);
-            assetCreditsRect.anchorMax = new Vector2(0.5f, 0.05f);
-            assetCreditsRect.sizeDelta = new Vector2(700, 30);
-            assetCreditsRect.anchoredPosition = Vector2.zero;
+            // Anchor slightly higher up (Y=0.4), still near the right edge (X=0.95)
+            assetCreditsRect.anchorMin = new Vector2(0.95f, 0.4f); 
+            assetCreditsRect.anchorMax = new Vector2(0.95f, 0.4f);
+            assetCreditsRect.pivot = new Vector2(1f, 0f); // Pivot at bottom-right
+            assetCreditsRect.sizeDelta = new Vector2(350, 450); // Significantly increased height for much larger font
+            assetCreditsRect.anchoredPosition = Vector2.zero; // Position relative to anchor
 
             // Initially hide the panel
             gameOverPanel.SetActive(false);
