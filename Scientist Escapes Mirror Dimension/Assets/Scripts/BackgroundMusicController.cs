@@ -21,7 +21,7 @@ public class BackgroundMusicController : MonoBehaviour
         // Add AudioSource component
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.loop = false;
-        audioSource.volume = 0.08f;
+        audioSource.volume = 0.03f;
 
         // Start playing background music
         if (backgroundMusic != null)
