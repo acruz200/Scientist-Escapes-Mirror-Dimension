@@ -8,6 +8,7 @@ TagManager:
   - StreetLamp
   - Bullet
   - Zombie
+  - Ground
   layers:
   - Default
   - TransparentFX
