@@ -114,8 +114,8 @@ public class PlasmaBulletShooter : MonoBehaviour
 
     void Update()
     {
-        // Check for right mouse button click with cooldown
-        if (Input.GetMouseButtonDown(1))
+        // Check for left mouse button click with cooldown
+        if (Input.GetMouseButtonDown(0))
         {
             if (Time.time > lastShotTime + shootCooldown)
             {

@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed = 25.0f;
     public float rotationSpeed = 90;
-    public float force = 700f;
+    public float force = 100f;  // Lowered jump force significantly
 
     // Added cooldown for movement after shooting
     public float movementCooldownAfterShoot = 0.1f;
@@ -22,6 +22,11 @@ public class PlayerMovement : MonoBehaviour
     // Walking sound
     public AudioSource footstepAudio;
 
+    // Double jump variables
+    private bool isGrounded = true;
+    private int jumpCount = 0;
+    private const int MAX_JUMPS = 2;
+
     Rigidbody rb;
     Transform t;
 
@@ -30,6 +35,26 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         t = GetComponent<Transform>();
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        // Check if we hit something below us (ground)
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            if (Vector3.Dot(contact.normal, Vector3.up) > 0.7f)
+            {
+                isGrounded = true;
+                jumpCount = 0; // Reset jump count when grounded
+                break;
+            }
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        // Check if we're no longer touching the ground
+        isGrounded = false;
     }
 
     // Update is called once per frame
@@ -50,9 +75,12 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKey(KeyCode.A))
             t.rotation *= Quaternion.Euler(0, -rotationSpeed * Time.deltaTime, 0);
 
-        // Jumping
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Jumping with double jump
+        if (Input.GetKeyDown(KeyCode.Space) && jumpCount < MAX_JUMPS)
+        {
             rb.AddForce(t.up * force);
+            jumpCount++;
+        }
 
         // Velocity clamp
         if (rb.linearVelocity.magnitude > maxVelocity)
