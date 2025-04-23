@@ -30,7 +30,6 @@ public class PlasmaBulletShooter : MonoBehaviour
     public Transform bulletSpawnPoint;
     public float bulletSpeed = 30f;
     public float bulletLifetime = 3f;
-    public Color bulletColor = Color.blue;
 
     [Header("Shooting Settings")]
     public float shootCooldown = 0.70f;
@@ -179,24 +178,9 @@ public class PlasmaBulletShooter : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.linearVelocity = bulletSpawnPoint.forward * bulletSpeed;
         
-        // Set bullet color
-        Renderer renderer = bullet.GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            // Create a new material to avoid changing shared materials
-            Material bulletMaterial = new Material(Shader.Find("Standard"));
-            bulletMaterial.color = bulletColor;
-            
-            // Add emission for a plasma effect
-            bulletMaterial.EnableKeyword("_EMISSION");
-            bulletMaterial.SetColor("_EmissionColor", bulletColor * 2f);
-            
-            renderer.material = bulletMaterial;
-        }
-        
         // Add a light component for glow effect
         Light bulletLight = bullet.AddComponent<Light>();
-        bulletLight.color = bulletColor;
+        bulletLight.color = Color.blue;
         bulletLight.intensity = 2f;
         bulletLight.range = 2f;
         
@@ -241,7 +225,7 @@ public class PlasmaBulletShooter : MonoBehaviour
         muzzleFlash.transform.parent = bulletSpawnPoint;
         
         Light flashLight = muzzleFlash.AddComponent<Light>();
-        flashLight.color = bulletColor;
+        flashLight.color = Color.blue;
         flashLight.intensity = 3f;
         flashLight.range = 3f;
         
