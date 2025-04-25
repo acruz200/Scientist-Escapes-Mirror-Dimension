@@ -9,11 +9,12 @@ TagManager:
   - Bullet
   - Zombie
   - Ground
+  - Gun
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Interactable
   - Water
   - UI
   - 

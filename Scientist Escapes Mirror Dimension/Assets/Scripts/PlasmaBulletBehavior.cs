@@ -87,7 +87,7 @@ public class PlasmaBulletBehavior : MonoBehaviour
             }
         }
         // ------------------
-
+        
         // If we hit the ground, propel the player upward
         if (other.CompareTag("Ground") || IsGroundSurface(other))
         {
