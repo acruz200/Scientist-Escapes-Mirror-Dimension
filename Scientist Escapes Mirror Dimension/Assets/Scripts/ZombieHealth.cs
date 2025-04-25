@@ -72,6 +72,12 @@ public class ZombieHealth : MonoBehaviour
 
         Debug.Log($"{name} has died.");
 
+        // Add points to player score
+        if (ScoreManager.instance != null)
+        {
+            ScoreManager.instance.AddZombieKillPoints();
+        }
+
         // --- Death Feedback & Cleanup --- 
         // Play death sound
         if (deathSound != null && audioSource != null)

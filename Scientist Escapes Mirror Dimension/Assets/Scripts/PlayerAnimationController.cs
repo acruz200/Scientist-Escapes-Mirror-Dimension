@@ -11,14 +11,16 @@ public class PlayerAnimationController : MonoBehaviour
     
     // Animation parameter names
     private const string ANIM_IS_WALKING = "isWalking";
+    private const string ANIM_IS_DEAD = "isDead";
     
     // Component references
     private Animator animator;
     private CharacterController characterController; // If using CharacterController
     private Rigidbody rb; // If using Rigidbody for movement
     
-    // Store previous walking state to minimize Animator parameter updates
+    // Store animation states to minimize Animator parameter updates
     private bool wasWalking = false;
+    private bool isDead = false;
 
     void Start()
     {
@@ -41,15 +43,14 @@ public class PlayerAnimationController : MonoBehaviour
             rb = GetComponent<Rigidbody>();
         }
         
-        // Make sure "Walk" animation is set to loop in the import settings
-        // We can't do this programmatically, but we can remind in the console
-        Debug.Log("Reminder: Ensure your walk animation has 'Loop Time' checked in the import settings!");
+        // Make sure animations are set up properly in the import settings
+        Debug.Log("Reminder: Ensure your animations have proper import settings (Loop Time for walk, etc.)");
     }
 
     void Update()
     {
-        // Only update animation state if we have an animator
-        if (animator != null)
+        // Only update animation state if we have an animator and player is not dead
+        if (animator != null && !isDead)
         {
             UpdateAnimationState();
         }
@@ -92,14 +93,77 @@ public class PlayerAnimationController : MonoBehaviour
         }
     }
     
-    // Optional: Public method to manually set walking state from other scripts
-    public void SetWalking(bool walking)
+    /// <summary>
+    /// Call this method when player health reaches zero to trigger death animation
+    /// </summary>
+    public void PlayDeathAnimation()
     {
-        if (animator != null && walking != wasWalking)
+        if (animator != null && !isDead)
         {
-            animator.SetBool(ANIM_IS_WALKING, walking);
-            wasWalking = walking;
+            // Stop all other animations by disabling walking
+            animator.SetBool(ANIM_IS_WALKING, false);
+            wasWalking = false;
+            
+            // Trigger death animation
+            animator.SetBool(ANIM_IS_DEAD, true);
+            isDead = true;
+            
+            // Optional: You may want to disable player controls/physics here
+            // or call a method on the player controller to handle that
+            DisablePlayerMovement();
         }
+    }
+    
+    /// <summary>
+    /// Resets death state - use this for respawning or restarting level
+    /// </summary>
+    public void ResetDeathState()
+    {
+        if (animator != null)
+        {
+            animator.SetBool(ANIM_IS_DEAD, false);
+            isDead = false;
+            
+            // Optional: Re-enable player controls/physics
+            EnablePlayerMovement();
+        }
+    }
+    
+    // Helper methods to handle player movement components
+    private void DisablePlayerMovement()
+    {
+        // Disable character controller if present
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+        
+        // If using rigidbody, you might want to freeze it
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+        
+        // You may need additional code here to disable your specific player controller script
+        // Example: GetComponent<PlayerController>().enabled = false;
+    }
+    
+    private void EnablePlayerMovement()
+    {
+        // Re-enable character controller if present
+        if (characterController != null)
+        {
+            characterController.enabled = true;
+        }
+        
+        // If using rigidbody, unfreeze it
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+        }
+        
+        // You may need additional code here to re-enable your specific player controller script
+        // Example: GetComponent<PlayerController>().enabled = true;
     }
     
     // Notes for configuring walking animation:
@@ -107,4 +171,10 @@ public class PlayerAnimationController : MonoBehaviour
     // 2. In the FBX import settings, if the character moves forward during animation:
     //    - Option A: Check "Bake Into Pose" under Root Transform Position (Y/XZ)
     //    - Option B: Keep applyRootMotion = false in this script to ignore forward movement
+    //
+    // Notes for configuring death animation:
+    // 1. Add a new boolean parameter "isDead" in your Animator Controller
+    // 2. Create a "Death" state with your death animation
+    // 3. Create transitions from any state to the Death state with condition "isDead = true"
+    // 4. For the transitions, uncheck "Has Exit Time" to make it trigger immediately
 } 

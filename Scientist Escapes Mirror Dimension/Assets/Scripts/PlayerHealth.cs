@@ -82,6 +82,13 @@ public class PlayerHealth : MonoBehaviour
         // Handle player death
         Debug.Log("Player died!");
         
+        // Play death animation
+        PlayerAnimationController animController = GetComponent<PlayerAnimationController>();
+        if (animController != null)
+        {
+            animController.PlayDeathAnimation();
+        }
+        
         // Disable player controls
         CharacterController controller = GetComponent<CharacterController>();
         if (controller != null)

@@ -22,6 +22,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float flashDuration = 0.2f;
     [SerializeField] private Color flashColor = new Color(1f, 0f, 0f, 0.3f);
     
+    [Header("Score Display")]
+    [SerializeField] private GameObject scorePanel;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    
     private void Awake()
     {
         // Create UI components if they don't exist
@@ -202,6 +206,66 @@ public class UIManager : MonoBehaviour
         // Show health bar
         healthBarPanel.SetActive(true);
         UpdateHealthBar(1.0f);
+        
+        // Create score panel if it doesn't exist
+        if (scorePanel == null)
+        {
+            // Create score panel
+            scorePanel = new GameObject("Score Panel");
+            scorePanel.transform.SetParent(mainCanvas.transform, false);
+            
+            // Add components
+            Image scorePanelImage = scorePanel.AddComponent<Image>();
+            scorePanelImage.color = new Color(0, 0, 0, 0.5f);
+            
+            // Set panel position and size
+            RectTransform scorePanelRect = scorePanel.GetComponent<RectTransform>();
+            scorePanelRect.anchorMin = new Vector2(1, 1);
+            scorePanelRect.anchorMax = new Vector2(1, 1);
+            scorePanelRect.pivot = new Vector2(1, 1);
+            scorePanelRect.anchoredPosition = new Vector2(-10, -10);
+            scorePanelRect.sizeDelta = new Vector2(200, 40);
+            
+            // Create score text
+            GameObject scoreTextObj = new GameObject("Score Text");
+            scoreTextObj.transform.SetParent(scorePanel.transform, false);
+            
+            scoreText = scoreTextObj.AddComponent<TextMeshProUGUI>();
+            scoreText.alignment = TextAlignmentOptions.Center;
+            scoreText.fontSize = 24;
+            scoreText.color = Color.white;
+            scoreText.text = "Score: 0";
+            
+            RectTransform scoreTextRect = scoreTextObj.GetComponent<RectTransform>();
+            scoreTextRect.anchorMin = Vector2.zero;
+            scoreTextRect.anchorMax = Vector2.one;
+            scoreTextRect.sizeDelta = Vector2.zero;
+            scoreTextRect.offsetMin = new Vector2(10, 5);
+            scoreTextRect.offsetMax = new Vector2(-10, -5);
+            
+            // Show score panel
+            scorePanel.SetActive(true);
+            
+            // Connect to the ScoreManager
+            SetupScoreManager();
+        }
+    }
+    
+    private void SetupScoreManager()
+    {
+        // Find or create ScoreManager
+        ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
+        if (scoreManager == null)
+        {
+            GameObject scoreManagerObj = new GameObject("ScoreManager");
+            scoreManager = scoreManagerObj.AddComponent<ScoreManager>();
+        }
+        
+        // Connect the score text to the ScoreManager
+        if (scoreManager != null && scoreText != null)
+        {
+            scoreManager.SetScoreText(scoreText);
+        }
     }
     
     public void ShowInteractionPrompt(string promptMessage)
