@@ -22,10 +22,8 @@ public class PlayerMovement : MonoBehaviour
     // Walking sound
     public AudioSource footstepAudio;
 
-    // Double jump variables
     private bool isGrounded = true;
-    private int jumpCount = 0;
-    private const int MAX_JUMPS = 2;
+    private Vector3 groundNormal = Vector3.up;
 
     Rigidbody rb;
     Transform t;
@@ -45,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
             if (Vector3.Dot(contact.normal, Vector3.up) > 0.7f)
             {
                 isGrounded = true;
-                jumpCount = 0; // Reset jump count when grounded
+                groundNormal = contact.normal.normalized;
                 break;
             }
         }
@@ -65,9 +63,9 @@ public class PlayerMovement : MonoBehaviour
 
         // Movement
         if (Input.GetKey(KeyCode.W) && !inCooldown)
-            rb.linearVelocity += this.transform.forward * speed * Time.deltaTime;
+            rb.velocity += this.transform.forward * speed * Time.deltaTime;
         else if (Input.GetKey(KeyCode.S) && !inCooldown)
-            rb.linearVelocity -= this.transform.forward * speed * Time.deltaTime;
+            rb.velocity -= this.transform.forward * speed * Time.deltaTime;
 
         // Rotation
         if (Input.GetKey(KeyCode.D))
@@ -75,17 +73,18 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKey(KeyCode.A))
             t.rotation *= Quaternion.Euler(0, -rotationSpeed * Time.deltaTime, 0);
 
-        // Jumping with double jump
-        if (Input.GetKeyDown(KeyCode.Space) && jumpCount < MAX_JUMPS)
+        // Natural slope-aware jump
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rb.AddForce(t.up * force);
-            jumpCount++;
+            Vector3 jumpDirection = (groundNormal + Vector3.up).normalized;
+            rb.AddForce(jumpDirection * force, ForceMode.Impulse);
+            isGrounded = false;
         }
 
         // Velocity clamp
-        if (rb.linearVelocity.magnitude > maxVelocity)
+        if (rb.velocity.magnitude > maxVelocity)
         {
-            rb.linearVelocity = rb.linearVelocity.normalized * maxVelocity;
+            rb.velocity = rb.velocity.normalized * maxVelocity;
         }
 
         // Play walking sound
