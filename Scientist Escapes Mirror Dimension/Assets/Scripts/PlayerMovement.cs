@@ -63,9 +63,9 @@ public class PlayerMovement : MonoBehaviour
 
         // Movement
         if (Input.GetKey(KeyCode.W) && !inCooldown)
-            rb.linearVelocity += this.transform.forward * speed * Time.deltaTime;
+            rb.velocity += this.transform.forward * speed * Time.deltaTime;
         else if (Input.GetKey(KeyCode.S) && !inCooldown)
-            rb.linearVelocity -= this.transform.forward * speed * Time.deltaTime;
+            rb.velocity -= this.transform.forward * speed * Time.deltaTime;
 
         // Rotation
         if (Input.GetKey(KeyCode.D))
@@ -82,9 +82,9 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Velocity clamp
-        if (rb.linearVelocity.magnitude > maxVelocity)
+        if (rb.velocity.magnitude > maxVelocity)
         {
-            rb.linearVelocity = rb.linearVelocity.normalized * maxVelocity;
+            rb.velocity = rb.velocity.normalized * maxVelocity;
         }
 
         // Play walking sound
