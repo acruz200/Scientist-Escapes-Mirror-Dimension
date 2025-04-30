@@ -18,12 +18,29 @@ public class PlasmaBulletBehavior : MonoBehaviour
     
     void Start()
     {
-        // Start with a small scale effect
-        transform.localScale = new Vector3(0.05f, 0.05f, 0.25f);
-        StartCoroutine(ScaleUpBullet());
+        // Use a larger, fixed scale for better visibility
+        transform.localScale = new Vector3(0.2f, 0.2f, 1.0f);
         
         // Find the player object - we'll need this to apply force to it
         player = GameObject.FindGameObjectWithTag("Player");
+        
+        // Make sure the renderer is visible
+        Renderer bulletRenderer = GetComponent<Renderer>();
+        if (bulletRenderer != null)
+        {
+            // Ensure the material is properly set up with emission
+            bulletRenderer.material.EnableKeyword("_EMISSION");
+            bulletRenderer.material.SetColor("_EmissionColor", Color.blue * 2.0f);
+        }
+        
+        // Ensure the light component is properly configured
+        Light bulletLight = GetComponent<Light>();
+        if (bulletLight != null)
+        {
+            bulletLight.color = Color.blue;
+            bulletLight.intensity = 2f;
+            bulletLight.range = 3f;
+        }
     }
     
     void Update()
@@ -34,32 +51,6 @@ public class PlasmaBulletBehavior : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
-        // Add a subtle pulsing effect for plasma appearance
-        float pulseScale = 1f + 0.05f * Mathf.Sin(Time.time * 20f);
-        transform.localScale = new Vector3(
-            transform.localScale.x * pulseScale,
-            transform.localScale.y * pulseScale,
-            transform.localScale.z
-        );
-    }
-    
-    IEnumerator ScaleUpBullet()
-    {
-        // Quickly scale the bullet to its intended size for a "charging" effect
-        float elapsed = 0f;
-        float duration = 0.1f;
-        Vector3 targetScale = new Vector3(0.1f, 0.1f, 0.5f);
-        Vector3 initialScale = transform.localScale;
-        
-        while (elapsed < duration)
-        {
-            transform.localScale = Vector3.Lerp(initialScale, targetScale, elapsed / duration);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        
-        transform.localScale = targetScale;
     }
     
     void OnTriggerEnter(Collider other)

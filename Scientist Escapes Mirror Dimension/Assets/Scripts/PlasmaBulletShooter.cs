@@ -151,17 +151,17 @@ public class PlasmaBulletShooter : MonoBehaviour
             StartCoroutine(ShowMuzzleFlash());
         }
         
-        // Create bullet at spawn point
-        GameObject bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
-        
         // Play shooting sound when bullet is created
         if (shootSound != null && audioSource != null)
         {
             StartCoroutine(PlayShootSound());
         }
         
-        // Set bullet scale to make it thin
-        bullet.transform.localScale = new Vector3(0.1f, 0.1f, 0.5f);
+        // Create bullet at spawn point - simplified bullet creation with proper scale and visibility
+        GameObject bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
+        
+        // Set bullet scale directly to make it more visible
+        bullet.transform.localScale = new Vector3(0.2f, 0.2f, 1.0f);
         
         // Add tag to the bullet for collision detection
         bullet.tag = "Bullet";
@@ -178,11 +178,25 @@ public class PlasmaBulletShooter : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.linearVelocity = bulletSpawnPoint.forward * bulletSpeed;
         
-        // Add a light component for glow effect
-        Light bulletLight = bullet.AddComponent<Light>();
+        // Add a light component for glow effect if it doesn't exist
+        Light bulletLight = bullet.GetComponent<Light>();
+        if (bulletLight == null)
+        {
+            bulletLight = bullet.AddComponent<Light>();
+        }
         bulletLight.color = Color.blue;
         bulletLight.intensity = 2f;
-        bulletLight.range = 2f;
+        bulletLight.range = 3f;
+        
+        // Make sure the renderer is visible
+        Renderer bulletRenderer = bullet.GetComponent<Renderer>();
+        if (bulletRenderer != null)
+        {
+            // Ensure the material is set up with emission
+            Material bulletMaterial = bulletRenderer.material;
+            bulletMaterial.EnableKeyword("_EMISSION");
+            bulletMaterial.SetColor("_EmissionColor", Color.blue * 2.0f);
+        }
         
         // Add a rigidbody to move the bullet and make it trigger collisions
         CapsuleCollider capsuleCollider = bullet.GetComponent<CapsuleCollider>();
@@ -191,15 +205,19 @@ public class PlasmaBulletShooter : MonoBehaviour
             capsuleCollider = bullet.AddComponent<CapsuleCollider>();
         }
         capsuleCollider.isTrigger = true;
-        capsuleCollider.radius = 0.1f;
-        capsuleCollider.height = 0.5f;
+        capsuleCollider.radius = 0.2f;  // Increased from 0.1f
+        capsuleCollider.height = 1.0f;  // Increased from 0.5f
         capsuleCollider.direction = 2; // Z-axis
         
         // Add the bullet behavior script
-        PlasmaBulletBehavior bulletBehavior = bullet.AddComponent<PlasmaBulletBehavior>();
+        PlasmaBulletBehavior bulletBehavior = bullet.GetComponent<PlasmaBulletBehavior>();
+        if (bulletBehavior == null)
+        {
+            bulletBehavior = bullet.AddComponent<PlasmaBulletBehavior>();
+        }
         bulletBehavior.lifetime = bulletLifetime;
         
-        // Apply a very small recoil force to the player when shooting
+        // Apply recoil force to the player
         if (playerRigidbody != null)
         {
             // Apply a force in the opposite direction of shooting with an upward component
