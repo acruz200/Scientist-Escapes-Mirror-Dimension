@@ -38,29 +38,49 @@ public class Interactable : MonoBehaviour
     
     void Update()
     {
-        // Check if player is in range
-        if (player != null)
+        // Ensure both refs are valid before proceeding
+        if (player == null || uiManager == null) 
         {
-            float distance = Vector3.Distance(transform.position, player.transform.position);
+            // Try to find them again if null (optional, could be done in Start)
+            if (player == null) player = GameObject.FindGameObjectWithTag("Player");
+            if (uiManager == null) uiManager = FindObjectOfType<UIManager>();
             
-            // Update player in range status
-            playerInRange = distance <= interactionDistance;
-            
-            // Show/hide interaction prompt
-            if (playerInRange && !isDisplayingDialogue)
-            {
-                uiManager.ShowInteractionPrompt(promptMessage);
-                
-                // Check for F key press to interact
-                if (Input.GetKeyDown(KeyCode.F))
-                {
-                    Interact();
-                }
-            }
-            else if (!playerInRange && !isDisplayingDialogue)
-            {
-                uiManager.HideInteractionPrompt();
-            }
+            // Log error if still null and exit Update
+            if (player == null) Debug.LogError($"Interactable '{name}': Player object not found! Ensure player is tagged 'Player'.", this);
+            if (uiManager == null) Debug.LogError($"Interactable '{name}': UIManager reference is missing!", this);
+            return; // Exit if references are missing
+        }
+
+        // Calculate distance and current range state
+        float distance = Vector3.Distance(transform.position, player.transform.position);
+        bool currentlyInRange = distance <= interactionDistance;
+
+        // --- State Change Logic --- 
+
+        // Player JUST Entered Range?
+        if (currentlyInRange && !playerInRange && !isDisplayingDialogue)
+        {
+            playerInRange = true; // Update state
+            Debug.Log($"Interactable '{name}': Player ENTERED range. Showing prompt.", this);
+            uiManager.ShowInteractionPrompt(promptMessage);
+            Debug.Log($"Interactable '{name}': Called ShowInteractionPrompt.", this); // Log *after* the call
+        }
+        // Player JUST Exited Range?
+        else if (!currentlyInRange && playerInRange && !isDisplayingDialogue)
+        {
+            playerInRange = false; // Update state
+            Debug.Log($"Interactable '{name}': Player EXITED range. Hiding prompt.", this);
+            uiManager.HideInteractionPrompt();
+            Debug.Log($"Interactable '{name}': Called HideInteractionPrompt.", this); // Log *after* the call
+        }
+
+        // --- Interaction Logic --- 
+
+        // Check for F key press only if currently in range and not displaying dialogue
+        if (currentlyInRange && !isDisplayingDialogue && Input.GetKeyDown(KeyCode.F))
+        {
+            Debug.Log($"Interactable '{name}': F key pressed. Interacting.", this);
+            Interact();
         }
     }
     

@@ -257,26 +257,41 @@ public class UIManager : MonoBehaviour
         ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
         if (scoreManager == null)
         {
-            GameObject scoreManagerObj = new GameObject("ScoreManager");
-            scoreManager = scoreManagerObj.AddComponent<ScoreManager>();
+            GameObject scoreObj = new GameObject("ScoreManager");
+            scoreManager = scoreObj.AddComponent<ScoreManager>();
         }
         
-        // Connect the score text to the ScoreManager
-        if (scoreManager != null && scoreText != null)
-        {
-            scoreManager.SetScoreText(scoreText);
-        }
+        // Register the score text with ScoreManager
+        scoreManager.SetScoreText(scoreText);
     }
     
     public void ShowInteractionPrompt(string promptMessage)
     {
-        interactionPromptText.text = promptMessage;
-        interactionPromptPanel.SetActive(true);
+        Debug.Log($"[UIManager] ShowInteractionPrompt called with message: '{promptMessage}'. Panel active state before: {interactionPromptPanel?.activeSelf}", this);
+        if (interactionPromptPanel != null && interactionPromptText != null)
+        {
+            interactionPromptText.text = promptMessage;
+            interactionPromptPanel.SetActive(true);
+            Debug.Log($"[UIManager] Interaction prompt panel activated. Text set to: '{interactionPromptText.text}'", this);
+        }
+        else
+        {
+            Debug.LogError("[UIManager] Interaction Prompt Panel or Text reference is missing!", this);
+        }
     }
     
     public void HideInteractionPrompt()
     {
-        interactionPromptPanel.SetActive(false);
+        Debug.Log($"[UIManager] HideInteractionPrompt called. Panel active state before: {interactionPromptPanel?.activeSelf}", this);
+        if (interactionPromptPanel != null)
+        {
+            interactionPromptPanel.SetActive(false);
+            Debug.Log("[UIManager] Interaction prompt panel deactivated.", this);
+        }
+        else
+        {
+             Debug.LogWarning("[UIManager] Interaction Prompt Panel reference is missing when trying to hide!", this);
+        }
     }
     
     public void ShowDialogue(string dialogueMessage)
