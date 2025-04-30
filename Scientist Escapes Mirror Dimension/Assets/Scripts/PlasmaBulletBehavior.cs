@@ -79,6 +79,22 @@ public class PlasmaBulletBehavior : MonoBehaviour
         }
         // ------------------
         
+        // --- Damage Boss --- 
+        if (other.CompareTag("Boss"))
+        {
+            BossHealth bossHealth = other.GetComponent<BossHealth>();
+            if (bossHealth != null)
+            {
+                // Use the damage value defined in this bullet script
+                bossHealth.TakeDamage(this.damage); // Using the public damage variable
+
+                // Destroy the bullet immediately after damaging the boss
+                Destroy(gameObject);
+                return; // Stop further processing for this collision
+            }
+        }
+        // -----------------
+        
         // If we hit the ground, propel the player upward
         if (other.CompareTag("Ground") || IsGroundSurface(other))
         {

@@ -665,4 +665,23 @@ public class BossHealth : MonoBehaviour
                 Gizmos.DrawSphere(point.position, 0.3f);
         }
     }
+
+    //=================================
+    // Public Getters for UI / Other Scripts
+    //=================================
+
+    public float GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    public float GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
+    public bool IsDead()
+    {
+        return isDead;
+    }
 } 
