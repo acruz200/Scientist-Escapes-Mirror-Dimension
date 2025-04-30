@@ -11,11 +11,13 @@ public class ZombieHealth : MonoBehaviour
     [SerializeField] private ParticleSystem damageParticles;
     [SerializeField] private AudioClip damageSound;
     [SerializeField] private AudioClip deathSound;
-    // Add reference to Animator if you have animations
-    // [SerializeField] private Animator animator;
+    // [SerializeField] private Animator animator; // Already commented, good place for it
+    [SerializeField] private float deathAnimationDuration = 2.0f; // Time before destroying object after death anim starts
+    [SerializeField] private string deathTriggerName = "Die"; // Name of the trigger parameter in the Animator
 
     private bool isDead = false;
     private AudioSource audioSource;
+    private Animator animator; // Add private reference to get component
 
     void Start()
     {
@@ -34,6 +36,13 @@ public class ZombieHealth : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.spatialBlend = 1.0f; // 3D sound
             audioSource.playOnAwake = false;
+        }
+
+        // Get the Animator component
+        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogWarning($"ZombieHealth on {name} couldn't find an Animator component. Death animation won't play.", this);
         }
     }
 
@@ -78,15 +87,20 @@ public class ZombieHealth : MonoBehaviour
             ScoreManager.instance.AddZombieKillPoints();
         }
 
+        // --- Trigger Death Animation ---
+        if (animator != null)
+        {
+            // Use the trigger name defined in the Inspector (defaults to "Die")
+            animator.SetTrigger(deathTriggerName);
+        }
+        // -----------------------------
+
         // --- Death Feedback & Cleanup --- 
         // Play death sound
         if (deathSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(deathSound);
         }
-        // Trigger death animation if exists
-        // if (animator != null) animator.SetTrigger("Die");
-
         // Disable components that might interfere (like movement scripts, colliders)
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
@@ -100,7 +114,7 @@ public class ZombieHealth : MonoBehaviour
         if(agent != null) agent.enabled = false;
 
         // Destroy the GameObject after a delay (e.g., 2 seconds to let sound/animation play)
-        Destroy(gameObject, 2.0f);
+        Destroy(gameObject, deathAnimationDuration);
         // -----------------------------
     }
 } 
