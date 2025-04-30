@@ -80,7 +80,7 @@ public class PlayerHealth : MonoBehaviour
         isDead = true; // Set the flag
 
         // Handle player death
-        Debug.Log("Player died!");
+        Debug.Log("[PlayerHealth] Die() method called.", this);
         
         // Play death animation
         PlayerAnimationController animController = GetComponent<PlayerAnimationController>();
@@ -97,23 +97,39 @@ public class PlayerHealth : MonoBehaviour
         }
         
         // Disable any player input scripts
+        Debug.Log("[PlayerHealth] Entering script disabling loop.", this);
         foreach (MonoBehaviour script in GetComponents<MonoBehaviour>())
         {
-            if (script != this && script.GetType().Name != "UIManager")
+            string scriptName = script.GetType().Name;
+            Debug.Log($"[PlayerHealth] Checking script: {scriptName}", this);
+            if (script != this && scriptName != "UIManager" && scriptName != "PlayerAnimationController") // Also skip PlayerAnimationController
             {
+                Debug.Log($"[PlayerHealth] Disabling script: {scriptName}", this);
                 script.enabled = false;
+                Debug.Log($"[PlayerHealth] Successfully disabled script: {scriptName}", this);
+            }
+            else
+            {
+                Debug.Log($"[PlayerHealth] Skipping script: {scriptName}", this);
             }
         }
-        
+        Debug.Log("[PlayerHealth] Exited script disabling loop.", this);
+
+        // Add extra log here
+        Debug.Log("[PlayerHealth] Reached point just before starting coroutine.", this);
+
         // Show game over screen
+        Debug.Log("[PlayerHealth] Starting ShowGameOver coroutine.", this);
         StartCoroutine(ShowGameOver());
     }
     
     private IEnumerator ShowGameOver()
     {
+        Debug.Log("[PlayerHealth] ShowGameOver coroutine started. Waiting for delay... Time.timeScale = " + Time.timeScale, this);
         // Wait a short delay before showing game over
         yield return new WaitForSeconds(1.5f);
 
+        Debug.Log("[PlayerHealth] ShowGameOver coroutine finished delay. Finding GameOverManager...", this);
         // Ensure time is running for the Game Over UI animations/interactions
         Time.timeScale = 1f;
 
@@ -121,12 +137,21 @@ public class PlayerHealth : MonoBehaviour
         GameOverManager gameOverManager = FindObjectOfType<GameOverManager>();
         if (gameOverManager == null)
         {
+            Debug.LogWarning("[PlayerHealth] GameOverManager not found via FindObjectOfType. Attempting to create.", this);
             GameObject gameOverObj = new GameObject("GameOverManager");
             gameOverManager = gameOverObj.AddComponent<GameOverManager>();
         }
         
         // Show game over screen
-        gameOverManager.ShowGameOver();
+        if (gameOverManager != null)
+        {
+            Debug.Log("[PlayerHealth] Calling gameOverManager.ShowGameOver()", this);
+            gameOverManager.ShowGameOver();
+        }
+        else
+        {
+            Debug.LogError("[PlayerHealth] Failed to find or create GameOverManager. Cannot show game over screen.", this);
+        }
     }
     
     // Debug method to test health system

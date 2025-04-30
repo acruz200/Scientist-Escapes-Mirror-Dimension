@@ -496,10 +496,34 @@ public class BossHealth : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
 
-        // Agent already stopped/disabled in ChangeState(Dead)
+        // --- Show Boss Defeated Dialogue ---
+        UIManager uiManager = FindObjectOfType<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.ShowDialogue("You have defeated me. But the journey is just beginning. Perhaps another dimension awaits."); 
+        }
+        else
+        {
+            Debug.LogWarning("UIManager not found in scene. Cannot display boss defeated dialogue.");
+        }
+        // -------------------------------------
 
-        // Destroy after delay (allows animation/sound to play)
-        Destroy(gameObject, 5.0f);
+        // --- Show Game Over Screen after a delay ---
+        StartCoroutine(ShowEndScreenAfterDelay(3.0f)); // Example: 3 second delay
+        // ------------------------------------------
+    }
+
+    private IEnumerator ShowEndScreenAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (GameOverManager.instance != null)
+        {
+            GameOverManager.instance.ShowGameOver();
+        }
+        else
+        {
+            Debug.LogError("GameOverManager instance not found! Cannot show end screen.");
+        }
     }
 
     //=================================
