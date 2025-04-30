@@ -58,7 +58,7 @@ public class PlasmaBulletShooter : MonoBehaviour
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.velocity = bulletSpawnPoint.forward * bulletSpeed;
+            rb.linearVelocity = bulletSpawnPoint.forward * bulletSpeed;
         }
         
         // Set bullet color
