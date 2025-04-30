@@ -226,12 +226,31 @@ public class MirrorGuardianController : MonoBehaviour
             meshRenderer.material = normalMaterial;
         }
         
-        // If we've reached the current patrol point, move to the next one
-        if (!navAgent.pathPending && navAgent.remainingDistance < 0.5f)
+        // Ensure we have patrol points and the agent is ready
+        if (patrolPoints.Count == 0)
         {
-            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Count;
-            SetDestination(patrolPoints[currentPatrolIndex].position);
+            // Optionally, log a warning or have the guardian stand still
+            // Debug.LogWarning($"{name}: No patrol points assigned.");
+            return; // Cannot patrol without points
         }
+
+        // Check if the agent is ready and has reached the destination (or close enough)
+        // Add checks for navAgent.isOnNavMesh and navAgent.hasPath
+        if (navAgent.isOnNavMesh && navAgent.isActiveAndEnabled && !navAgent.pathPending)
+        {
+            // Only check remaining distance if a path exists
+            if (!navAgent.hasPath || navAgent.remainingDistance < 0.5f)
+            {
+                // Safely get the next index
+                currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Count; 
+                SetDestination(patrolPoints[currentPatrolIndex].position);
+            }
+        }
+        // else
+        // {
+            // Agent might still be initializing or pathfinding, wait...
+            // Debug.Log("Agent not ready or path pending...");
+        // }
     }
     
     public void Chase()
