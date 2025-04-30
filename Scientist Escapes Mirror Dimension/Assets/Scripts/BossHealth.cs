@@ -466,6 +466,10 @@ public class BossHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
+        // --- Add this Debug Log ---
+        Debug.Log($"Die() method called on {name} at time {Time.time}", this);
+        // -------------------------
+
         Debug.Log($"{name} (Boss) has been defeated!");
         ChangeState(BossState.Dead); // Ensure state is Dead
 

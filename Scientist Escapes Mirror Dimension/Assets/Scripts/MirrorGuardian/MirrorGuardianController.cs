@@ -337,7 +337,15 @@ public class MirrorGuardianController : MonoBehaviour
         // Play attack animation
         if (animator != null)
         {
-            animator.SetTrigger("Attack");
+            // Ensure your Animator Controller has a trigger named "Attack"
+            animator.SetTrigger("Attack"); 
+        }
+        else
+        {
+            // Get the animator if it wasn't assigned/found in Start()
+            if (animator == null) animator = GetComponent<Animator>();
+            if (animator != null) animator.SetTrigger("Attack");
+            else Debug.LogWarning($"MirrorGuardian {name} cannot play attack animation: Animator not found.");
         }
         
         // Play attack particles
